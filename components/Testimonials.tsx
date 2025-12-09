@@ -190,8 +190,8 @@ const Testimonials: React.FC = () => {
         {/* Bottom CTA */}
         <div className="mt-12 text-center">
             <p className="text-stone-400 text-sm mb-4">Penasaran se-seru apa?</p>
-            <button className="px-8 py-3 bg-ryllBlack text-white rounded-full font-bold hover:bg-stone-800 transition-colors shadow-lg shadow-black/20">
-                Coba Web App Sekarang
+            <button className="px-8 py-3 bg-ryllOrange text-white rounded-full font-bold hover:bg-stone-800 transition-colors shadow-lg shadow-black/20">
+                Coba Sekarang
             </button>
         </div>
 

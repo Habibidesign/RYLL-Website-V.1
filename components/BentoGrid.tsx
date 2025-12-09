@@ -18,14 +18,15 @@ const BentoGrid: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Grid Layout: 3 Columns. Left & Middle columns contain 2 stacked cards each. Right column is 1 tall card. */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         
         {/* Column 1: Social Proof & Big Stat */}
         <div className="flex flex-col gap-6 h-full">
            {/* Card 1: Users */}
            <motion.div 
-             whileHover={{ y: -5 }}
-             className="bg-[#F0FDF4] p-8 rounded-[32px] flex flex-col items-center justify-center text-center border border-green-100 shadow-sm flex-1"
+             whileHover={{ y: -2 }}
+             className="bg-[#F0FDF4] p-8 rounded-[32px] flex flex-col items-center justify-center text-center border border-green-100 flex-1"
            >
               <div className="flex -space-x-3 mb-4">
                  {[1,2,3,4,5].map(i => (
@@ -38,8 +39,8 @@ const BentoGrid: React.FC = () => {
 
            {/* Card 2: Percentage Stat */}
            <motion.div 
-             whileHover={{ y: -5 }}
-             className="bg-white p-8 rounded-[32px] flex flex-col items-center justify-center text-center border border-stone-100 shadow-lg shadow-stone-200/50 flex-1 relative overflow-hidden"
+             whileHover={{ y: -2 }}
+             className="bg-white p-8 rounded-[32px] flex flex-col items-center justify-center text-center border border-stone-200 flex-1 relative overflow-hidden"
            >
               <h3 className="font-display font-bold text-6xl text-ryllBlack mb-2 relative z-10">99%</h3>
               <p className="text-stone-500 font-medium relative z-10">Anti Krik Krik.<br/><span className="text-xs opacity-60">Garansi uang kembali kalo temen lo diem aja.</span></p>
@@ -53,8 +54,8 @@ const BentoGrid: React.FC = () => {
         <div className="flex flex-col gap-6 h-full">
            {/* Card 3: Intelligent Features */}
            <motion.div 
-             whileHover={{ y: -5 }}
-             className="bg-white p-8 rounded-[32px] border border-stone-100 shadow-sm flex flex-col items-center flex-1"
+             whileHover={{ y: -2 }}
+             className="bg-white p-8 rounded-[32px] border border-stone-200 flex flex-col items-center justify-center flex-1"
            >
               <div className="text-center mb-6">
                  <h3 className="font-display font-bold text-lg text-ryllBlack">Dibackup AI</h3>
@@ -75,71 +76,74 @@ const BentoGrid: React.FC = () => {
 
            {/* Card 4: Mobile Mockup */}
            <motion.div 
-             whileHover={{ y: -5 }}
-             className="bg-[#FFFBF5] pt-8 px-8 rounded-[32px] border border-orange-100 shadow-sm flex flex-col items-center flex-1 relative overflow-hidden"
+             whileHover={{ y: -2 }}
+             className="bg-[#FFFBF5] pt-8 px-8 rounded-[32px] border border-orange-100 flex flex-col items-center justify-end flex-1 relative overflow-hidden"
            >
-              <h3 className="font-display font-bold text-lg text-ryllOrange mb-1">Mobile First</h3>
-              <p className="text-xs text-orange-800/60 mb-6">Desain buat jempol lo.</p>
+              <div className="text-center mb-6">
+                 <h3 className="font-display font-bold text-lg text-ryllOrange mb-1">Mobile First</h3>
+                 <p className="text-xs text-orange-800/60">Desain buat jempol lo.</p>
+              </div>
               
-              <div className="w-[140px] bg-white rounded-t-[2rem] border-4 border-white shadow-xl h-32 relative top-1">
+              <div className="w-[140px] bg-white rounded-t-[2rem] border-4 border-white h-24 relative top-1">
                  <div className="w-full h-full bg-stone-100 rounded-t-[1.7rem] p-3 flex flex-col gap-2">
                     <div className="w-full h-16 bg-ryllOrange rounded-xl opacity-80"></div>
-                    <div className="w-full h-4 bg-white rounded-md"></div>
                  </div>
               </div>
            </motion.div>
         </div>
 
         {/* Column 3: The Big CTA Card (Right) */}
-        <motion.div 
-           whileHover={{ scale: 1.01 }}
-           className="bg-ryllBlack rounded-[32px] p-8 md:p-12 text-white flex flex-col justify-between relative overflow-hidden h-full shadow-2xl"
-        >
-           {/* Header */}
-           <div className="relative z-10 text-center md:text-left">
-              <div className="flex justify-center md:justify-start gap-1 mb-4 text-green-400">
-                 <Star fill="currentColor" size={24} />
-                 <Star fill="currentColor" size={24} />
-                 <Star fill="currentColor" size={24} />
-                 <Star fill="currentColor" size={24} />
-                 <Star fill="currentColor" size={24} />
-              </div>
-              <h3 className="font-display font-bold text-6xl mb-2">5.0</h3>
-              <p className="text-stone-400 text-lg">Rating sempurna di hati user.</p>
-           </div>
+        <div className="h-full">
+            <motion.div 
+            whileHover={{ scale: 1.01 }}
+            className="bg-ryllBlack rounded-[32px] p-8 md:p-12 text-white flex flex-col justify-between relative overflow-hidden h-full"
+            >
+            {/* Header */}
+            <div className="relative z-10 text-center md:text-left">
+                <div className="flex justify-center md:justify-start gap-1 mb-4 text-green-400">
+                    <Star fill="currentColor" size={24} />
+                    <Star fill="currentColor" size={24} />
+                    <Star fill="currentColor" size={24} />
+                    <Star fill="currentColor" size={24} />
+                    <Star fill="currentColor" size={24} />
+                </div>
+                <h3 className="font-display font-bold text-6xl mb-2">5.0</h3>
+                <p className="text-stone-400 text-lg">Rating sempurna di hati user.</p>
+            </div>
 
-           {/* Icons */}
-           <div className="flex justify-center md:justify-start gap-6 mt-8 relative z-10 opacity-80">
-              <Smartphone size={32} />
-              <Zap size={32} />
-              <Users size={32} />
-           </div>
+            {/* Icons */}
+            <div className="flex justify-center md:justify-start gap-6 mt-8 relative z-10 opacity-80">
+                <Smartphone size={32} />
+                <Zap size={32} />
+                <Users size={32} />
+            </div>
 
-           {/* CTA Button */}
-           <div className="mt-12 relative z-10 flex flex-col items-center md:items-start">
-              <p className="text-stone-400 mb-6 leading-relaxed text-center md:text-left">
-                 Akhirnya ada game yang bikin lo berhenti main HP dan mulai ngobrol beneran. Smooth, cepet, gratis.
-              </p>
-              <button className="w-full bg-white text-ryllBlack py-4 rounded-full font-bold text-lg hover:bg-stone-200 transition-colors flex items-center justify-center gap-2 group">
-                 Main Sekarang - GRATIS
-                 <ArrowRight className="group-hover:translate-x-1 transition-transform" />
-              </button>
-           </div>
+            {/* CTA Button */}
+            <div className="mt-12 relative z-10 flex flex-col items-center md:items-start">
+                <p className="text-stone-400 mb-6 leading-relaxed text-center md:text-left">
+                    Akhirnya ada game yang bikin lo berhenti main HP dan mulai ngobrol beneran. Smooth, cepet, gratis.
+                </p>
+                <button className="w-full bg-white text-ryllBlack py-4 rounded-full font-bold text-lg hover:bg-stone-200 transition-colors flex items-center justify-center gap-2 group">
+                    Main Sekarang - GRATIS
+                    <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                </button>
+            </div>
 
-           {/* Giant Background Arrow Decoration - Fixed with fill-none */}
-           <div className="absolute bottom-[-10%] right-[-10%] w-[120%] h-[120%] pointer-events-none opacity-[0.05] text-white">
-              <svg 
-                viewBox="0 0 24 24" 
-                className="w-full h-full fill-none stroke-current" 
-                strokeWidth="1.5" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                 <path d="M 7 17 L 17 7" />
-                 <path d="M 7 7 H 17 V 17" />
-              </svg>
-           </div>
-        </motion.div>
+            {/* Giant Background Arrow Decoration - Fixed with fill-none */}
+            <div className="absolute bottom-[-10%] right-[-10%] w-[120%] h-[120%] pointer-events-none opacity-[0.05] text-white">
+                <svg 
+                    viewBox="0 0 24 24" 
+                    className="w-full h-full fill-none stroke-current" 
+                    strokeWidth="1.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                >
+                    <path d="M 7 17 L 17 7" />
+                    <path d="M 7 7 H 17 V 17" />
+                </svg>
+            </div>
+            </motion.div>
+        </div>
 
       </div>
     </section>
