@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Quote } from 'lucide-react';
@@ -78,8 +77,9 @@ const Testimonials: React.FC = () => {
           {/* 
             Left Side: Avatar Selector 
             Desktop: Vertical Stack, Fixed Container Height
+            Mobile: Horizontal scroll with Fixed Size items (No resizing)
           */}
-          <div className="flex flex-row md:flex-col gap-3 overflow-x-auto md:overflow-hidden pb-4 md:pb-0 scrollbar-hide w-full md:w-[280px] shrink-0 h-auto md:h-full">
+          <div className="flex flex-row md:flex-col gap-3 overflow-x-auto md:overflow-hidden pb-4 md:pb-0 scrollbar-hide w-full md:w-[280px] shrink-0 h-auto md:h-full justify-start md:justify-start">
             {testimonials.map((t, index) => {
               const isActive = activeTab === index;
               return (
@@ -94,17 +94,20 @@ const Testimonials: React.FC = () => {
                       : 'border-transparent opacity-40 grayscale hover:opacity-80 hover:grayscale-0'
                     }
                   `}
-                  // Fixed Calculations: 
+                  // Fixed Calculations for Desktop: 
                   // Total H = 580px. Gap = 3 * 12 = 36px. 
                   // Inactive = 80px * 3 = 240px. 
                   // Active = 580 - 240 - 36 = 304px.
+                  //
+                  // Mobile Logic:
+                  // Force fixed size (80px) on mobile so it doesn't jump.
                   animate={{
                     width: isDesktop 
                         ? '100%' 
-                        : (isActive ? 200 : 80), 
+                        : 80, // Mobile: Always 80px square
                     height: isDesktop 
-                        ? (isActive ? 304 : 80) // Perfectly calculated to fill 580px
-                        : 80, 
+                        ? (isActive ? 304 : 80) 
+                        : 80, // Mobile: Always 80px square
                   }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >

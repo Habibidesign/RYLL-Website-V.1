@@ -4,8 +4,8 @@ import { Instagram, Twitter, Linkedin } from 'lucide-react';
 const Footer: React.FC = () => {
   return (
     <footer className="bg-cream pt-20 pb-10 px-6 border-t border-stone-200">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end gap-12">
-        <div>
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center md:items-end gap-12">
+        <div className="flex flex-col items-center md:items-start">
           <div className="flex items-center gap-2 mb-6">
             <div className="w-8 h-8 bg-ryllBlack rounded-lg flex items-center justify-center rotate-3">
               <span className="text-white font-display font-bold text-lg">R</span>
@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="text-right">
+        <div className="text-center md:text-right">
           <h2 className="font-display font-bold text-4xl md:text-6xl text-stone-300 mb-4 hover:text-ryllOrange transition-colors cursor-pointer">
             Siap Main?
           </h2>

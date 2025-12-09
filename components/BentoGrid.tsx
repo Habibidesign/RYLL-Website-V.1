@@ -116,8 +116,8 @@ const BentoGrid: React.FC = () => {
            </div>
 
            {/* CTA Button */}
-           <div className="mt-12 relative z-10">
-              <p className="text-stone-400 mb-6 leading-relaxed">
+           <div className="mt-12 relative z-10 flex flex-col items-center md:items-start">
+              <p className="text-stone-400 mb-6 leading-relaxed text-center md:text-left">
                  Akhirnya ada game yang bikin lo berhenti main HP dan mulai ngobrol beneran. Smooth, cepet, gratis.
               </p>
               <button className="w-full bg-white text-ryllBlack py-4 rounded-full font-bold text-lg hover:bg-stone-200 transition-colors flex items-center justify-center gap-2 group">

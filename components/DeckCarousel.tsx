@@ -65,7 +65,7 @@ const decks: Deck[] = [
 const DeckCarousel: React.FC = () => {
   return (
     <section id="decks" className="py-24 bg-white relative">
-      <div className="max-w-7xl mx-auto px-6 mb-8 flex flex-col md:flex-row justify-between items-end">
+      <div className="max-w-7xl mx-auto px-6 mb-8 flex flex-col md:flex-row justify-between items-center md:items-end text-center md:text-left">
          <div>
             <span className="text-ryllOrange font-bold tracking-widest text-xs uppercase mb-4 block">
               KOLEKSI DECK
