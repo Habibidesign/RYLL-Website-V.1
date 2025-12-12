@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { RefreshCcw, Layers, Lock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Lock, Play, Sparkles, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { Deck } from '../types';
 
-// Data derived from user request
 const decks: Deck[] = [
   {
     id: 'd1',
     title: 'DEEP TALK',
     description: 'Buka hati tanpa baper.',
     color: '#FF5F1F',
-    gradient: 'from-orange-600 to-red-600',
+    gradient: 'from-orange-500 to-red-600',
     questionCount: 658,
     questions: ['Apa ketakutan terbesar lo saat ini?', 'Siapa orang yang paling lo kangenin?', 'Hal apa yang lo sesalin tahun ini?']
   },
@@ -27,7 +26,7 @@ const decks: Deck[] = [
     id: 'd3',
     title: 'TOXIC TRAITS',
     description: 'Red flag lo apa? Jujur aja.',
-    color: '#bef264',
+    color: '#84cc16',
     gradient: 'from-lime-500 to-green-600',
     questionCount: 112,
     questions: ['Lo orangnya pendendam gak?', 'Sifat toxic lo yang susah ilang?', 'Pernah ghosting orang? Kenapa?']
@@ -63,99 +62,211 @@ const decks: Deck[] = [
 ];
 
 const DeckCarousel: React.FC = () => {
-  return (
-    <section id="decks" className="py-24 bg-white relative">
-      <div className="max-w-7xl mx-auto px-6 mb-8 flex flex-col md:flex-row justify-between items-center md:items-end text-center md:text-left">
-         <div>
-            <span className="text-ryllOrange font-bold tracking-widest text-xs uppercase mb-4 block">
-              KOLEKSI DECK
-            </span>
-            <h2 className="font-display font-semibold text-4xl md:text-6xl mb-4 leading-tight text-ryllBlack">Pilih Mood Lo.</h2>
-            <p className="text-stone-500 text-lg">Swipe buat pilih mood nongkrong lo.</p>
-         </div>
-         <div className="hidden md:flex gap-2">
-            <span className="text-sm font-mono text-stone-400">GESER →</span>
-         </div>
-      </div>
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
-      {/* 
-          FIX: Added 'py-16' instead of 'pb-12' to give vertical breathing room 
-          for the 3D rotation so corners don't get clipped by overflow-x-auto.
-      */}
-      <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 px-6 py-16 scrollbar-hide">
-        {decks.map((deck) => (
-          <DeckCard key={deck.id} deck={deck} />
-        ))}
-        {/* Spacer for scroll */}
-        <div className="w-6 shrink-0" />
-      </div>
-    </section>
-  );
-};
+  // Handle Resize for Responsive Spacing
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    handleResize();
 
-const DeckCard: React.FC<{ deck: Deck }> = ({ deck }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const handleFlip = () => {
-    if (deck.isComingSoon) return;
-    setIsFlipped(!isFlipped);
+  // Auto-rotate questions for the active card
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setQuestionIndex((prev) => (prev + 1) % 3); // Cycle through first 3 questions
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [activeIndex]);
+
+  const nextCard = () => {
+    setActiveIndex((prev) => (prev + 1) % decks.length);
+    setQuestionIndex(0);
+  };
+
+  const prevCard = () => {
+    setActiveIndex((prev) => (prev - 1 + decks.length) % decks.length);
+    setQuestionIndex(0);
+  };
+
+  const handleDragEnd = (event: any, info: any) => {
+    if (info.offset.x < -50) nextCard();
+    else if (info.offset.x > 50) prevCard();
+  };
+
+  const getIndex = (i: number) => {
+    const len = decks.length;
+    return ((i % len) + len) % len;
   };
 
   return (
-    <div 
-      className={`relative shrink-0 w-[85vw] md:w-[380px] h-[520px] snap-center perspective-1000 group ${deck.isComingSoon ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-      onClick={handleFlip}
-    >
-      <motion.div
-        className="relative w-full h-full preserve-3d"
-        // FIX: Removed CSS transition-transform to avoid conflict with Framer Motion
-        initial={false}
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }} // Smooth "spring-like" ease
-        style={{ transformStyle: 'preserve-3d' }} // Explicitly ensure 3D context
-      >
-        {/* Front */}
-        <div className={`absolute inset-0 w-full h-full rounded-[32px] bg-gradient-to-br ${deck.gradient || 'from-stone-800 to-black'} p-8 flex flex-col justify-between text-white shadow-xl group-hover:shadow-2xl backface-hidden border border-white/10`}>
-          
-          <div className="flex justify-between items-start relative z-10">
-             <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold tracking-widest uppercase border border-white/20">
-               {deck.isComingSoon ? <Lock size={12} /> : <Layers size={12} />}
-               {deck.questionCount} Kartu
-             </div>
-             {!deck.isComingSoon && <RefreshCcw size={20} className="text-white/70" />}
-          </div>
-          
-          <div className="relative z-10">
-            <h3 className="font-display font-bold text-5xl mb-4 leading-none tracking-tight">{deck.title}</h3>
-            <p className="text-white/90 text-lg font-medium">{deck.description}</p>
-          </div>
+    <section id="decks" className="py-24 relative overflow-hidden transition-colors duration-700 bg-cream">
+      
+      {/* Dynamic Background Blob */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+         <motion.div 
+            animate={{ backgroundColor: decks[activeIndex].color }}
+            className="w-[600px] h-[600px] rounded-full blur-[150px] opacity-10 transition-colors duration-700"
+         />
+      </div>
 
-          <div className={`w-full text-center py-4 rounded-2xl backdrop-blur-sm text-sm font-semibold border border-white/20 transition-colors relative z-10 ${deck.isComingSoon ? 'bg-white/10 cursor-not-allowed text-white/80' : 'bg-white/10 hover:bg-white/20'}`}>
-             {deck.isComingSoon ? 'Segera Hadir' : 'Tap buat Intip'}
-          </div>
+      <div className="max-w-7xl mx-auto px-6 mb-12 relative z-10">
+        <div className="text-center">
+           <span className="text-ryllOrange font-bold tracking-widest text-xs uppercase mb-4 block">
+             KOLEKSI DECK
+           </span>
+           <h2 className="font-display font-semibold text-4xl md:text-6xl leading-tight text-ryllBlack mb-4">
+             Pilih Mood Lo.
+           </h2>
+           <p className="text-stone-500 text-lg max-w-2xl mx-auto">
+             Swipe kartu buat pilih topik obrolan hari ini.
+           </p>
+        </div>
+      </div>
+
+      {/* CAROUSEL AREA */}
+      <div className="relative h-[600px] md:h-[680px] flex items-center justify-center w-full perspective-1000">
+        
+        {/* CARDS */}
+        <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
+           {[-2, -1, 0, 1, 2].map((offset) => {
+              const index = getIndex(activeIndex + offset);
+              const deck = decks[index];
+              const isActive = offset === 0;
+              
+              // Spacing Configuration
+              // Desktop Card Width: 380px -> Spacing 410px (Gap 30px)
+              // Mobile Card Width: 320px -> Spacing 340px (Gap 20px)
+              const spacing = isMobile ? 340 : 410;
+              const xOffset = offset * spacing;
+              
+              const scale = isActive ? 1 : Math.max(0.85 - Math.abs(offset) * 0.05, 0.6); // Subtle scaling
+              const opacity = isActive ? 1 : Math.max(0.7 - Math.abs(offset) * 0.15, 0);
+              const rotateY = offset * -5; // Subtle rotation for cleaner gaps
+              const zIndex = 50 - Math.abs(offset);
+
+              return (
+                <motion.div
+                  key={`${deck.id}-${index}`}
+                  className="absolute top-1/2 left-1/2"
+                  initial={false}
+                  animate={{
+                    x: `calc(-50% + ${xOffset}px)`,
+                    y: '-50%',
+                    scale,
+                    rotateY,
+                    zIndex,
+                    opacity,
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  drag={isActive ? "x" : false}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  onDragEnd={handleDragEnd}
+                  onClick={() => { if (offset !== 0) setActiveIndex(getIndex(activeIndex + offset)); }}
+                  style={{ transformStyle: 'preserve-3d', cursor: isActive ? 'grab' : 'pointer' }}
+                >
+                   {/* THE CARD */}
+                   <div className={`
+                      w-[320px] md:w-[380px] h-[520px] md:h-[600px] 
+                      rounded-[3.5rem] p-8 
+                      flex flex-col justify-between relative overflow-hidden
+                      bg-gradient-to-br ${deck.gradient} shadow-2xl
+                      transition-all duration-500 border-[8px] border-white/10
+                   `}>
+                      
+                      {/* Card Texture/Noise */}
+                      <div className="absolute inset-0 bg-white opacity-5 mix-blend-overlay" 
+                           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }} 
+                      />
+
+                      {/* Top: Icon & Count */}
+                      <div className="flex justify-between items-start relative z-10 text-white">
+                         <div className="w-16 h-16 rounded-[1.5rem] bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg">
+                            {deck.isComingSoon ? <Lock size={28} /> : <Sparkles size={28} />}
+                         </div>
+                         <div className="px-4 py-2 rounded-full bg-black/20 backdrop-blur-md text-xs font-bold border border-white/10 tracking-wider">
+                            {deck.questionCount} KARTU
+                         </div>
+                      </div>
+
+                      {/* Middle: Title & Description */}
+                      <div className="relative z-10 text-white mt-8 mb-4">
+                         <h3 className="font-display font-bold text-5xl md:text-6xl leading-[0.9] mb-4 drop-shadow-sm tracking-tight">
+                           {deck.title}
+                         </h3>
+                         <p className="text-white/90 text-sm font-medium leading-relaxed max-w-[260px]">
+                           {deck.description}
+                         </p>
+                      </div>
+
+                      {/* Bottom: Dynamic Content (Questions or CTA) */}
+                      <div className="relative z-10 mt-auto">
+                         {!deck.isComingSoon && isActive ? (
+                           <div className="bg-white/10 backdrop-blur-md rounded-[2.5rem] p-6 border border-white/20 min-h-[160px] flex flex-col justify-center">
+                              <div className="flex items-center gap-2 mb-3 opacity-60">
+                                 <RefreshCw size={14} className="animate-spin-slow" />
+                                 <span className="text-[10px] font-bold tracking-widest uppercase">Preview Pertanyaan</span>
+                              </div>
+                              <AnimatePresence mode="wait">
+                                <motion.p 
+                                  key={questionIndex}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: -10 }}
+                                  className="text-white font-medium text-xl leading-snug"
+                                >
+                                  "{deck.questions[questionIndex]}"
+                                </motion.p>
+                              </AnimatePresence>
+                           </div>
+                         ) : (
+                           // Inactive or Locked State
+                           <div className="min-h-[160px] flex items-end">
+                              {deck.isComingSoon ? (
+                                <div className="w-full py-5 bg-black/20 rounded-[2rem] text-center text-white/60 font-bold text-sm border border-white/5 backdrop-blur-sm">
+                                  Segera Hadir
+                                </div>
+                              ) : (
+                                <button className="w-full bg-white text-ryllBlack py-5 rounded-[2rem] font-bold text-base hover:scale-[1.02] active:scale-95 transition-all shadow-xl flex items-center justify-center gap-2">
+                                  <Play size={20} fill="currentColor" /> Buka Deck Ini
+                                </button>
+                              )}
+                           </div>
+                         )}
+                      </div>
+
+                   </div>
+                </motion.div>
+              );
+           })}
         </div>
 
-        {/* Back */}
-        <div className="absolute inset-0 w-full h-full rounded-[32px] bg-white border border-stone-200 p-8 flex flex-col shadow-xl backface-hidden rotate-y-180">
-           <div className="mb-6 pb-6 border-b border-stone-100 flex justify-between items-center">
-             <span className="text-stone-400 font-mono text-xs font-bold tracking-widest">PREVIEW</span>
-             <div className={`w-4 h-4 rounded-full bg-gradient-to-br ${deck.gradient}`} />
-           </div>
-           
-           <div className="flex-1 flex flex-col gap-3 overflow-y-auto scrollbar-hide">
-             {deck.questions.map((q: string, i: number) => (
-               <div key={i} className="bg-stone-50 p-4 rounded-xl border border-stone-100 text-ryllBlack font-medium text-sm leading-relaxed">
-                 "{q}"
-               </div>
-             ))}
-           </div>
-           
-           <div className="mt-6 pt-4 text-center text-stone-400 text-xs font-medium border-t border-stone-50">
-             Tap lagi buat tutup
-           </div>
+        {/* Controls */}
+        <div className="absolute bottom-0 md:bottom-auto md:top-1/2 left-0 right-0 flex justify-center md:justify-between px-4 md:px-12 pointer-events-none z-50">
+           <button 
+             onClick={prevCard}
+             className="w-14 h-14 rounded-full bg-white text-ryllBlack shadow-xl flex items-center justify-center hover:bg-stone-50 transition-all pointer-events-auto mr-4 md:mr-0 group"
+           >
+             <ChevronLeft size={28} className="group-hover:-translate-x-1 transition-transform" />
+           </button>
+           <button 
+             onClick={nextCard}
+             className="w-14 h-14 rounded-full bg-white text-ryllBlack shadow-xl flex items-center justify-center hover:bg-stone-50 transition-all pointer-events-auto ml-4 md:ml-0 group"
+           >
+             <ChevronRight size={28} className="group-hover:translate-x-1 transition-transform" />
+           </button>
         </div>
-      </motion.div>
-    </div>
+
+      </div>
+    </section>
   );
 };
 

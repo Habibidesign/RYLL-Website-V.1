@@ -19,16 +19,7 @@ const App: React.FC = () => {
         <Hero />
         <BentoGrid />
         
-        {/* Play Anywhere / Logos Section */}
-        <div className="py-12 overflow-hidden bg-ryllOrange border-y border-orange-500">
-           <div className="flex gap-12 animate-marquee whitespace-nowrap">
-              {[...Array(10)].map((_, i) => (
-                <span key={i} className="text-4xl font-display font-bold mx-8 text-white">
-                  MAIN DI MANA AJA. GAK PAKE LOGIN. ASYIK TERUS.
-                </span>
-              ))}
-           </div>
-        </div>
+        {/* Marquee Removed - Logos integrated into Hero */}
 
         <DeckCarousel />
         <Testimonials />
