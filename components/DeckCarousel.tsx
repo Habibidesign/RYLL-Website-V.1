@@ -108,8 +108,8 @@ const DeckCarousel: React.FC = () => {
   };
 
   return (
-    // Increased vertical padding (py-32) to prevent clipping
-    <section id="decks" className="py-32 relative overflow-hidden transition-colors duration-700 bg-cream">
+    // Changed overflow-hidden to overflow-x-clip to prevent horizontal scroll while allowing cards to be visible
+    <section id="decks" className="py-32 relative overflow-x-clip transition-colors duration-700 bg-cream">
 
       {/* Dynamic Background Blob - Increased Size */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
@@ -133,8 +133,8 @@ const DeckCarousel: React.FC = () => {
         </div>
       </div>
 
-      {/* CAROUSEL AREA - Increased Height to contain cards comfortably */}
-      <div className="relative h-[650px] md:h-[800px] flex items-center justify-center w-full perspective-1000">
+      {/* CAROUSEL AREA - Added horizontal padding to prevent card clipping */}
+      <div className="relative h-[650px] md:h-[800px] flex items-center justify-center w-full perspective-1000 px-4 md:px-0">
 
         {/* CARDS */}
         <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
