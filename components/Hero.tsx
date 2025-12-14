@@ -44,16 +44,6 @@ const Hero: React.FC = () => {
                 Lihat Demo
               </button>
             </div>
-
-            {/* Partners (No Border) */}
-            <div>
-              <p className="text-stone-400 text-xs font-bold uppercase tracking-wider mb-4">Our most loved partners</p>
-              <div className="flex flex-wrap gap-x-8 gap-y-4 opacity-50 grayscale hover:grayscale-0 transition-all">
-                <span className="font-display font-bold text-xl text-stone-600">Spotify</span>
-                <span className="font-display font-bold text-xl text-stone-600">Discord</span>
-                <span className="font-display font-bold text-xl text-stone-600">Starbucks</span>
-              </div>
-            </div>
           </motion.div>
         </div>
 
