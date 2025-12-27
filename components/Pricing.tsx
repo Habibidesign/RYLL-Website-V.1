@@ -89,7 +89,7 @@ const Pricing: React.FC = () => {
 
                <PricingCard
                   title="Anak Sini"
-                  price="29rb"
+                  price="15rb"
                   isPremium={true}
                   features={[
                      { label: "Buka Semua 50+ Deck", included: true },
