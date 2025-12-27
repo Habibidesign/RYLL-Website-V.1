@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+    /* Fonts */
+    --font-sans: 'Inter', 'sans-serif';
+    --font-display: 'Space Grotesk', 'sans-serif';
+
+    /* Colors */
+    --color-cream: #FDFBF7;
+    --color-ryllOrange: #FF5F1F;
+    --color-ryllPurple: #5B2C6F;
+    --color-ryllBlack: #1A1A1A;
+    --color-ryllGray: #F2F2F0;
+
+    /* Keyframes */
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    @keyframes marquee {
+        0% {
+            transform: translateX(0%);
+        }
+
+        100% {
+            transform: translateX(-100%);
+        }
+    }
+
+    @keyframes marqueeVertical {
+        0% {
+            transform: translateY(0%);
+        }
+
+        100% {
+            transform: translateY(-50%);
+        }
+    }
+
+    /* Animation Utilities */
+    --animate-float: float 6s ease-in-out infinite;
+    --animate-marquee: marquee 25s linear infinite;
+    --animate-marquee-vertical: marqueeVertical 25s linear infinite;
+}
+
+/* Global Styles */
+body {
+    background-color: var(--color-cream);
+    color: var(--color-ryllBlack);
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+}
+
+/* Subtle Grain Texture */
+.bg-noise {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 40;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.perspective-1000 {
+    perspective: 1000px;
+}
+
+.preserve-3d {
+    transform-style: preserve-3d;
+}
+
+.backface-hidden {
+    backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+    transform: rotateY(180deg);
+}

@@ -1,270 +1,161 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Play, Sparkles, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
+import { Lock, ArrowRight, Spade, Heart, Club, Diamond } from 'lucide-react';
 import { Deck } from '../types';
 
 const decks: Deck[] = [
   {
-    id: 'd1',
+    id: '01',
     title: 'DEEP TALK',
-    description: 'Buka hati tanpa baper.',
-    color: '#FF5F1F',
-    gradient: 'from-orange-500 to-red-600',
-    questionCount: 658,
-    questions: ['Apa ketakutan terbesar lo saat ini?', 'Siapa orang yang paling lo kangenin?', 'Hal apa yang lo sesalin tahun ini?']
-  },
-  {
-    id: 'd2',
-    title: 'BUCIN ERA',
-    description: 'Khusus buat yang lagi dimabuk asmara.',
-    color: '#8A2BE2',
-    gradient: 'from-purple-600 to-indigo-600',
-    questionCount: 420,
-    questions: ['Hal paling bucin yang pernah lo lakuin?', 'Lagu apa yang ingetin lo sama doi?', 'First date ideal lo kayak gimana?']
-  },
-  {
-    id: 'd3',
-    title: 'TOXIC TRAITS',
-    description: 'Red flag lo apa? Jujur aja.',
-    color: '#84cc16',
-    gradient: 'from-lime-500 to-green-600',
-    questionCount: 112,
-    questions: ['Lo orangnya pendendam gak?', 'Sifat toxic lo yang susah ilang?', 'Pernah ghosting orang? Kenapa?']
-  },
-  {
-    id: 'd4',
-    title: 'CAREER MODE',
-    description: 'Ngomongin masa depan dan cuan.',
-    color: '#3b82f6',
-    gradient: 'from-blue-500 to-cyan-500',
-    questionCount: 89,
-    questions: ['Pekerjaan impian lo pas kecil?', 'Gaji gede tapi stress atau gaji pas tapi santai?', 'Goals lo 5 tahun lagi?']
-  },
-  {
-    id: 'd5',
-    title: 'MIDNIGHT',
-    description: 'Obrolan jam 2 pagi yang random.',
-    color: '#111111',
-    gradient: 'from-gray-800 to-black',
-    questionCount: 333,
-    questions: ['Kalau lo bisa ulang waktu, lo mau ke momen apa?', 'Apa arti kebahagiaan buat lo?', 'Hal mistis yang pernah lo alamin?']
-  },
-  {
-    id: 'd6',
-    title: '18+ UNCENSORED',
-    description: 'Bahaya. Jangan main sama keluarga.',
-    color: '#ec4899',
-    gradient: 'from-pink-500 via-rose-500 to-pink-600',
-    questionCount: 69,
+    description: 'Spill the tea.',
+    color: 'bg-purple-600',
     questions: [],
+    questionCount: 658
+  },
+  {
+    id: '02',
+    title: 'BUCIN ERA',
+    description: 'Si paling bucin.',
+    color: 'bg-pink-600',
+    questions: [],
+    questionCount: 420
+  },
+  {
+    id: '03',
+    title: 'TOXIC',
+    description: 'Khusus yang toxic.',
+    color: 'bg-green-500',
+    questions: [],
+    questionCount: 112
+  },
+  {
+    id: '04',
+    title: 'CAREER',
+    description: 'Kerja terooos.',
+    color: 'bg-blue-600',
+    questions: [],
+    questionCount: 89
+  },
+  {
+    id: '05',
+    title: 'MIDNIGHT',
+    description: 'Overthinking mode.',
+    color: 'bg-orange-500',
+    questions: [],
+    questionCount: 333
+  },
+  {
+    id: '06',
+    title: '18+ NSFW',
+    description: 'Jangan dimainin.',
+    color: 'bg-red-600',
+    questions: [],
+    questionCount: 69,
     isComingSoon: true
   }
 ];
 
-const DeckCarousel: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Handle Resize for Responsive Spacing
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    // Initial check
-    handleResize();
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Auto-rotate questions for the active card
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setQuestionIndex((prev) => (prev + 1) % 3); // Cycle through first 3 questions
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [activeIndex]);
-
-  const nextCard = () => {
-    setActiveIndex((prev) => (prev + 1) % decks.length);
-    setQuestionIndex(0);
-  };
-
-  const prevCard = () => {
-    setActiveIndex((prev) => (prev - 1 + decks.length) % decks.length);
-    setQuestionIndex(0);
-  };
-
-  const handleDragEnd = (event: any, info: any) => {
-    if (info.offset.x < -50) nextCard();
-    else if (info.offset.x > 50) prevCard();
-  };
-
-  const getIndex = (i: number) => {
-    const len = decks.length;
-    return ((i % len) + len) % len;
-  };
+const DeckCard: React.FC<{ deck: Deck; index: number }> = ({ deck, index }) => {
+  const SuitIcon = [Spade, Heart, Club, Diamond][index % 4];
 
   return (
-    // Changed overflow-hidden to overflow-x-clip to prevent horizontal scroll while allowing cards to be visible
-    <section id="decks" className="py-32 relative overflow-x-clip transition-colors duration-700 bg-cream">
+    <div className="group relative w-[300px] md:w-[340px] aspect-[2.5/3.5] shrink-0 cursor-pointer snap-center">
+      {/* Card Container */}
+      <div className="w-full h-full bg-[#0A0A0A] rounded-[1.5rem] relative overflow-hidden text-white p-6 flex flex-col justify-between transition-all duration-500 group-hover:-translate-y-4 shadow-lg hover:shadow-2xl ring-1 ring-black/5 border border-white/5">
 
-      {/* Dynamic Background Blob - Increased Size */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-        <motion.div
-          animate={{ backgroundColor: decks[activeIndex].color }}
-          className="w-[800px] h-[800px] rounded-full blur-[150px] opacity-10 transition-colors duration-700"
-        />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 mb-12 relative z-10">
-        <div className="text-center">
-          <span className="text-ryllOrange font-bold tracking-widest text-xs uppercase mb-4 block">
-            KOLEKSI DECK
+        {/* Top Index */}
+        <div className="flex justify-between items-start opacity-60">
+          <div className="flex flex-col items-center leading-none group-hover:text-[#FF5F1F] transition-colors">
+            <span className="font-display text-2xl font-bold">{index + 1}</span>
+            <SuitIcon size={16} className="mt-1" />
+          </div>
+          <span className="font-mono text-[10px] uppercase tracking-widest border border-white/20 px-2 py-1 rounded-full group-hover:border-[#FF5F1F] group-hover:text-[#FF5F1F] transition-colors">
+            {deck.questionCount} Kartu
           </span>
-          <h2 className="font-display font-semibold text-4xl md:text-6xl leading-tight text-ryllBlack mb-4">
-            Pilih Mood Lo.
+        </div>
+
+        {/* Central Visual */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className={`w-40 h-40 rounded-full blur-[80px] opacity-40 ${deck.color} group-hover:opacity-60 transition-opacity duration-700`} />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 mt-auto">
+          <h3 className="font-display font-bold text-4xl mb-2 leading-none uppercase tracking-tight">
+            {deck.title}
+          </h3>
+          <p className="font-mono text-xs text-white/50 mb-6 uppercase tracking-wide group-hover:text-white transition-colors">
+            {deck.description}
+          </p>
+
+          {deck.isComingSoon ? (
+            <div className="w-full py-3 border border-white/10 rounded-lg flex items-center justify-center gap-2 text-white/40 font-mono text-xs uppercase">
+              <Lock size={12} /> Belom Rilis
+            </div>
+          ) : (
+            <button className="w-full py-3 bg-white text-black rounded-lg font-bold font-mono text-xs uppercase hover:bg-[#FF5F1F] hover:text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg">
+              Sikat Deck <ArrowRight size={12} />
+            </button>
+          )}
+        </div>
+
+        {/* Bottom Index (Inverted) */}
+        <div className="absolute bottom-6 right-6 opacity-60 rotate-180 pointer-events-none group-hover:text-[#FF5F1F] transition-colors">
+          <div className="flex flex-col items-center leading-none">
+            <span className="font-display text-2xl font-bold">{index + 1}</span>
+            <SuitIcon size={16} className="mt-1" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DeckCarousel: React.FC = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <section id="decks" className="bg-[#F2F2F0] py-24 md:py-32 overflow-hidden border-t border-black/10">
+
+      {/* Header */}
+      <div className="max-w-[1600px] mx-auto px-6 md:px-12 mb-12 flex flex-col md:flex-row items-end justify-between gap-6">
+        <div>
+          <p className="font-mono text-xs md:text-sm text-[#FF5F1F] uppercase tracking-widest mb-4 font-bold">
+            Drop 001
+          </p>
+          <h2 className="font-display font-bold text-6xl md:text-8xl text-black leading-[0.85] tracking-tighter uppercase">
+            Pilih Racun<br />Lo Sekarang.
           </h2>
-          <p className="text-stone-500 text-lg max-w-2xl mx-auto">
-            Swipe kartu buat pilih topik obrolan hari ini.
+        </div>
+        <div className="hidden md:block">
+          <p className="font-mono text-xs text-black/60 max-w-xs text-right uppercase tracking-tight">
+            Swipe buat cari masalah<br />(canda masalah).
           </p>
         </div>
       </div>
 
-      {/* CAROUSEL AREA - Added horizontal padding to prevent card clipping */}
-      <div className="relative h-[650px] md:h-[800px] flex items-center justify-center w-full perspective-1000 px-4 md:px-0">
+      {/* Horizontal Scroll */}
+      <div
+        ref={containerRef}
+        className="flex overflow-x-auto pt-10 pb-12 px-6 md:px-12 gap-6 snap-x snap-mandatory scrollbar-hide"
+      >
+        {decks.map((deck, i) => (
+          <DeckCard key={deck.id} deck={deck} index={i} />
+        ))}
 
-        {/* CARDS */}
-        <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
-          {[-2, -1, 0, 1, 2].map((offset) => {
-            const index = getIndex(activeIndex + offset);
-            const deck = decks[index];
-            const isActive = offset === 0;
-
-            // Spacing Configuration
-            // Desktop Card Width: 380px -> Spacing 410px (Gap 30px)
-            // Mobile Card Width: 320px -> Spacing 340px (Gap 20px)
-            const spacing = isMobile ? 340 : 410;
-            const xOffset = offset * spacing;
-
-            const scale = isActive ? 1 : Math.max(0.85 - Math.abs(offset) * 0.05, 0.6); // Subtle scaling
-            const opacity = isActive ? 1 : Math.max(0.7 - Math.abs(offset) * 0.15, 0);
-            const rotateY = offset * -5; // Subtle rotation for cleaner gaps
-            const zIndex = 50 - Math.abs(offset);
-
-            return (
-              <motion.div
-                key={`${deck.id}-${index}`}
-                className="absolute top-1/2 left-1/2"
-                initial={false}
-                animate={{
-                  x: `calc(-50% + ${xOffset}px)`,
-                  y: '-50%',
-                  scale,
-                  rotateY,
-                  zIndex,
-                  opacity,
-                }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                drag={isActive ? "x" : false}
-                dragConstraints={{ left: 0, right: 0 }}
-                onDragEnd={handleDragEnd}
-                onClick={() => { if (offset !== 0) setActiveIndex(getIndex(activeIndex + offset)); }}
-                style={{ transformStyle: 'preserve-3d', cursor: isActive ? 'grab' : 'pointer' }}
-              >
-                {/* THE CARD */}
-                <div className={`
-                      w-[320px] md:w-[380px] h-[520px] md:h-[600px] 
-                      rounded-[3.5rem] p-8 
-                      flex flex-col justify-between relative overflow-hidden
-                      bg-gradient-to-br ${deck.gradient} shadow-2xl
-                      transition-all duration-500 
-                      ring-8 ring-white/10 ring-inset
-                   `}>
-
-                  {/* Card Texture/Noise */}
-                  <div className="absolute inset-0 bg-white opacity-5 mix-blend-overlay"
-                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }}
-                  />
-
-                  {/* Top: Icon & Count */}
-                  <div className="flex justify-between items-start relative z-10 text-white">
-                    <div className="w-16 h-16 rounded-[1.5rem] bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg">
-                      {deck.isComingSoon ? <Lock size={28} /> : <Sparkles size={28} />}
-                    </div>
-                    <div className="px-4 py-2 rounded-full bg-black/20 backdrop-blur-md text-xs font-bold border border-white/10 tracking-wider">
-                      {deck.questionCount} KARTU
-                    </div>
-                  </div>
-
-                  {/* Middle: Title & Description */}
-                  <div className="relative z-10 text-white mt-8 mb-4">
-                    <h3 className="font-display font-bold text-4xl md:text-5xl leading-[0.95] mb-4 drop-shadow-sm tracking-tight break-words">
-                      {deck.title}
-                    </h3>
-                    <p className="text-white/90 text-sm font-medium leading-relaxed max-w-[260px]">
-                      {deck.description}
-                    </p>
-                  </div>
-
-                  {/* Bottom: Dynamic Content (Questions or CTA) */}
-                  <div className="relative z-10 mt-auto">
-                    {!deck.isComingSoon && isActive ? (
-                      <div className="bg-white/10 backdrop-blur-md rounded-[2rem] p-6 border border-white/20 min-h-[160px] flex flex-col justify-center">
-                        <div className="flex items-center gap-2 mb-3 opacity-60">
-                          <RefreshCw size={14} className="animate-spin-slow" />
-                          <span className="text-[10px] font-bold tracking-widest uppercase">Preview Pertanyaan</span>
-                        </div>
-                        <AnimatePresence mode="wait">
-                          <motion.p
-                            key={questionIndex}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="text-white font-medium text-xl leading-snug"
-                          >
-                            "{deck.questions[questionIndex]}"
-                          </motion.p>
-                        </AnimatePresence>
-                      </div>
-                    ) : (
-                      // Inactive or Locked State
-                      <div className="min-h-[160px] flex items-end">
-                        {deck.isComingSoon ? (
-                          <div className="w-full py-5 bg-black/20 rounded-full text-center text-white/60 font-bold text-sm border border-white/5 backdrop-blur-sm">
-                            Segera Hadir
-                          </div>
-                        ) : (
-                          <button className="w-full bg-white text-ryllBlack py-5 rounded-full font-bold text-base hover:scale-[1.02] active:scale-95 transition-all shadow-xl flex items-center justify-center gap-2">
-                            <Play size={20} fill="currentColor" /> Buka Deck Ini
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Controls */}
-        <div className="absolute bottom-0 md:bottom-auto md:top-1/2 left-0 right-0 flex justify-center md:justify-between px-4 md:px-12 pointer-events-none z-50">
-          <button
-            onClick={prevCard}
-            className="w-14 h-14 rounded-full bg-white text-ryllBlack shadow-xl flex items-center justify-center hover:bg-stone-50 transition-all pointer-events-auto mr-4 md:mr-0 group"
-          >
-            <ChevronLeft size={28} className="group-hover:-translate-x-1 transition-transform" />
-          </button>
-          <button
-            onClick={nextCard}
-            className="w-14 h-14 rounded-full bg-white text-ryllBlack shadow-xl flex items-center justify-center hover:bg-stone-50 transition-all pointer-events-auto ml-4 md:ml-0 group"
-          >
-            <ChevronRight size={28} className="group-hover:translate-x-1 transition-transform" />
-          </button>
+        {/* Bundle Card */}
+        <div className="snap-center shrink-0 w-[300px] md:w-[340px] aspect-[2.5/3.5] flex items-center justify-center">
+          <div className="text-center group cursor-pointer w-full h-full rounded-[1.5rem] hover:bg-white/50 transition-colors flex flex-col items-center justify-center">
+            <div className="w-24 h-24 bg-black group-hover:bg-[#FF5F1F] rounded-full flex items-center justify-center text-white mb-6 mx-auto group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(255,95,31,0.4)] transition-all duration-300">
+              <ArrowRight size={32} />
+            </div>
+            <h3 className="font-display font-bold text-4xl text-black uppercase mb-2 group-hover:text-[#FF5F1F] transition-colors">
+              All Access
+            </h3>
+            <p className="font-mono text-xs text-black/60 uppercase tracking-widest">
+              Ambil Semua Bundle
+            </p>
+          </div>
         </div>
 
       </div>
