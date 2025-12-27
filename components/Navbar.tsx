@@ -60,10 +60,15 @@ const Navbar: React.FC = () => {
             </button>
 
             {/* Play Now Button (Desktop) */}
-            <button className="hidden md:flex items-center gap-2 bg-[#FF5F1F] text-white px-6 py-2.5 rounded-full font-bold font-mono text-xs uppercase tracking-wider hover:bg-[#1A1A1A] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 shadow-md shadow-orange-500/20">
+            <a
+              href="https://ryll-app.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:flex items-center gap-2 bg-[#FF5F1F] text-white px-6 py-2.5 rounded-full font-bold font-mono text-xs uppercase tracking-wider hover:bg-[#1A1A1A] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 shadow-md shadow-orange-500/20"
+            >
               <Gamepad2 size={16} />
               Main Sekarang
-            </button>
+            </a>
 
             {/* Mobile Toggle */}
             <button
@@ -100,9 +105,14 @@ const Navbar: React.FC = () => {
               </div>
 
               <div className="mt-auto w-full space-y-4">
-                <button className="w-full bg-[#FF5F1F] text-white py-4 rounded-full text-xl font-bold shadow-xl shadow-orange-500/30 uppercase font-display tracking-tight hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
+                <a
+                  href="https://ryll-app.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-[#FF5F1F] text-white py-4 rounded-full text-xl font-bold shadow-xl shadow-orange-500/30 uppercase font-display tracking-tight hover:scale-[1.02] transition-transform flex items-center justify-center gap-2"
+                >
                   <Gamepad2 size={24} /> Main Sekarang
-                </button>
+                </a>
                 <button className="w-full bg-black text-white py-4 rounded-full text-sm font-bold shadow-lg uppercase font-mono tracking-widest hover:bg-black/80 transition-colors">
                   Lihat Shop
                 </button>
