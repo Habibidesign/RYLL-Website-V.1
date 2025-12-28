@@ -46,7 +46,7 @@ const decks: Deck[] = [
   },
   {
     id: '06',
-    title: '18+ NSFW',
+    title: '18+ UNCENSORED',
     description: 'Jangan dimainin.',
     color: 'bg-red-600',
     questions: [],
@@ -93,7 +93,7 @@ const DeckCard: React.FC<{ deck: Deck; index: number }> = ({ deck, index }) => {
               <Lock size={12} /> Belom Rilis
             </div>
           ) : (
-            <button className="w-full py-3 bg-white text-black rounded-lg font-bold font-mono text-xs uppercase hover:bg-[#FF5F1F] hover:text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg">
+            <button className="w-full py-3 bg-white text-black rounded-full font-bold font-mono text-xs uppercase hover:bg-[#FF5F1F] hover:text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg">
               Sikat Deck <ArrowRight size={12} />
             </button>
           )}

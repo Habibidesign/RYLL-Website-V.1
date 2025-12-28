@@ -49,7 +49,7 @@ const PricingCard = ({
 
       {/* CTA */}
       <button className={`
-        w-full py-5 rounded-xl font-bold font-mono text-sm uppercase tracking-wider border-2 transition-all hover:-translate-y-1 shadow-lg
+        w-full py-5 rounded-full font-bold font-mono text-sm uppercase tracking-wider border-2 transition-all hover:-translate-y-1 shadow-lg
         ${isPremium
             ? 'bg-[#FF5F1F] text-white border-[#FF5F1F] hover:bg-[#FF5F1F] hover:shadow-[0_0_30px_rgba(255,95,31,0.6)]'
             : 'bg-black text-white border-black hover:bg-white hover:text-black'}
