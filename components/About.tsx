@@ -124,10 +124,10 @@ const About: React.FC = () => {
                     </div>
 
                     <div className="mt-10">
-                        <button className="group flex items-center gap-3 bg-white/5 hover:bg-white/10 text-white px-8 py-4 rounded-full border border-white/10 transition-all hover:scale-105 hover:border-[#FF5F1F]/50">
+                        <a href="#decks" className="group flex items-center gap-3 bg-white/5 hover:bg-white/10 text-white px-8 py-4 rounded-full border border-white/10 transition-all hover:scale-105 hover:border-[#FF5F1F]/50">
                             <span className="font-display font-bold text-lg uppercase tracking-tight">Show The Collection</span>
                             <ArrowRight size={20} className="transform group-hover:translate-x-1 transition-transform" />
-                        </button>
+                        </a>
                     </div>
                 </div>
 
