@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RYLL — Kartu obrolan buat yang berani jujur</title>
+    <meta
+      name="description"
+      content="Kartu obrolan buat 3–10 orang. Pilih temanya, tarik kartunya, jawab sejujurnya."
+    />
+    <meta property="og:title" content="RYLL — Kartu obrolan buat yang berani jujur" />
+    <meta
+      property="og:description"
+      content="Kartu obrolan buat 3–10 orang. Pilih temanya, tarik kartunya, jawab sejujurnya."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/art/logo-ghost.svg" />
+    <link
+      rel="preload"
+      href="/fonts/stack-sans-text.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <!-- ═══════════ Preloader (pola fourmula: counter raksasa) ═══════════ -->
+    <div id="preloader" aria-hidden="true">
+      <span id="preloader-count">0</span>
+    </div>
+
+    <!-- ═══════════ S0 · Navbar: logo · pill Menu+% · pill Gas Main ═══════════ -->
+    <header class="nav">
+      <a class="nav-logo" href="/" aria-label="RYLL">
+        <span class="logomark" style="--lm: 40px">
+          <span class="logomark-tile"></span>
+          <img src="/art/logo-ghost.svg" alt="" />
+        </span>
+      </a>
+
+      <button class="nav-pill" id="menu-toggle" aria-expanded="false" aria-controls="menu-panel">
+        <span class="nav-burger"><i></i><i></i></span>
+        <span class="nav-menu-label" aria-hidden="true"><span class="lm lm-menu">Menu</span><span class="lm lm-close">Close</span></span>
+        <span class="nav-progress" id="scroll-progress">0%</span>
+      </button>
+
+      <!-- TODO: arahkan ke URL PWA begitu domainnya diputuskan -->
+      <a class="btn-primary nav-cta" href="#" id="cta-main">Gas Main</a>
+    </header>
+
+    <!-- ═══════════ Menu panel (pola fourmula: turun dari pill nav) ═══════════ -->
+    <div class="menu-overlay" id="menu-overlay" aria-hidden="true"></div>
+    <div class="menu-panel" id="menu-panel" aria-hidden="true">
+      <span class="menu-label" style="--i: 0">Menu</span>
+      <nav class="menu-links">
+        <a href="#apaan" class="menu-link" style="--i: 1">Apaan nih</a>
+        <a href="#tema" class="menu-link" style="--i: 2">Tema</a>
+        <a href="#cara-main" class="menu-link" style="--i: 3">Cara Main</a>
+        <a href="#faq" class="menu-link" style="--i: 4">FAQ</a>
+      </nav>
+      <hr class="menu-rule" style="--i: 5" />
+      <span class="menu-label" style="--i: 6">Lainnya</span>
+      <nav class="menu-links menu-links-small">
+        <a href="#" class="menu-link" style="--i: 7">Instagram</a>
+        <a href="#" class="menu-link" style="--i: 8">Privasi</a>
+      </nav>
+    </div>
+
+    <!-- ═══════════ S1 · Hero: ring kartu + headline raksasa ═══════════ -->
+    <section class="hero" id="hero">
+      <!-- ring kartu tema — quote mekanik roda giliran -->
+      <div class="ring-scroll" id="ring-scroll">
+        <div class="ring-spin" id="ring-spin">
+          <!-- 8 kartu orbit; --a sudut, --tilt kemiringan, --d delay reveal -->
+          <div class="orbit" style="--a: -90deg; --d: 0.05s">
+            <div class="counter"><div class="mini-card"><img src="/art/toxic-traits-front-thumb.webp" alt="" /></div></div>
+          </div>
+          <div class="orbit" style="--a: -45deg; --d: 0.1s">
+            <div class="counter"><div class="mini-card"><img src="/art/midnight-front-thumb.webp" alt="" /></div></div>
+          </div>
+          <div class="orbit" style="--a: 0deg; --d: 0.15s">
+            <div class="counter"><div class="mini-card"><img src="/art/uncensored-back-thumb.webp" alt="" /></div></div>
+          </div>
+          <div class="orbit" style="--a: 45deg; --d: 0.2s">
+            <div class="counter"><div class="mini-card"><img src="/art/deep-talk-front-thumb.webp" alt="" /></div></div>
+          </div>
+          <div class="orbit" style="--a: 90deg; --d: 0.25s">
+            <div class="counter"><div class="mini-card"><img src="/art/bucin-era-front-thumb.webp" alt="" /></div></div>
+          </div>
+          <div class="orbit" style="--a: 135deg; --d: 0.3s">
+            <div class="counter"><div class="mini-card"><img src="/art/career-mode-front-thumb.webp" alt="" /></div></div>
+          </div>
+          <div class="orbit" style="--a: 180deg; --d: 0.35s">
+            <div class="counter"><div class="mini-card"><img src="/art/bucin-era-back-thumb.webp" alt="" /></div></div>
+          </div>
+          <div class="orbit" style="--a: 225deg; --d: 0.4s">
+            <div class="counter"><div class="mini-card"><img src="/art/career-mode-back-thumb.webp" alt="" /></div></div>
+          </div>
+        </div>
+
+        <!-- kartu pusat: punggung → tap → muka + pertanyaan teaser -->
+        <div class="center-card" id="center-card">
+          <button class="flip3d" id="flip-btn" aria-label="Tap buat buka kartu">
+            <div class="flip-scaler">
+            <div class="flip-inner" id="flip-inner">
+              <!-- punggung -->
+              <div class="face face-back">
+                <div class="gcard gcard-back">
+                  <div class="gcard-body">
+                    <img class="gcard-art" id="back-art" src="/art/deep-talk-back.webp" alt="" />
+                    <div class="gcard-overlay">
+                      <span class="gcard-logo">
+                        <span class="logomark" style="--lm: 42px">
+                          <span class="logomark-tile"></span>
+                          <img src="/art/logo-ghost.svg" alt="" />
+                        </span>
+                        <span class="gcard-logo-word">RYLL</span>
+                      </span>
+                      <span class="gcard-tap">Tap buat buka</span>
+                      <span class="gcard-hint">kartunya ganti tiap tap</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- muka -->
+              <div class="face face-front">
+                <div class="gcard gcard-front">
+                  <div class="gcard-body">
+                    <img class="gcard-art" id="front-art" src="/art/bucin-era-front.webp" alt="" />
+                    <div class="gcard-overlay">
+                      <span class="gcard-logo">
+                        <span class="logomark" style="--lm: 42px">
+                          <span class="logomark-tile"></span>
+                          <img src="/art/logo-ghost.svg" alt="" />
+                        </span>
+                        <span class="gcard-logo-word">RYLL</span>
+                      </span>
+                      <p class="gcard-q" id="front-q">Sebutin satu red flag yang lo maafin gara-gara cakep.</p>
+                      <span class="gcard-pill" id="front-label">Bucin Era</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- headline raksasa kiri-bawah, 2 nada (pola fourmula) -->
+      <h1 class="hero-headline">
+        <span class="hl-line hl-ink" style="--d: 0.15s">
+          Si <img class="sticker" src="/art/sticker-eyes.svg" alt="👀" /> nanya,
+        </span>
+        <span class="hl-line hl-ink" style="--d: 0.28s">
+          lo jawab. <span class="hl-muted">Jujur.</span> <img class="sticker" src="/art/sticker-great.svg" alt="👍" />
+        </span>
+      </h1>
+
+      <span class="hero-copyright">©2026 · ryll.id</span>
+      <span class="hero-scroll-hint">scroll pelan-pelan</span>
+    </section>
+
+    <!-- ═══════════ S2 · Split intro (rail kiri + display 2 nada) ═══════════ -->
+    <section class="split-intro" id="apaan">
+      <div class="rail">
+        <span class="bento-cap rail-label"><i class="cap-dot"></i>Apaan nih</span>
+      </div>
+      <div class="split-main">
+        <h2 class="display">
+          <span class="hl-ink reveal">Kartu obrolan.</span><br />
+          <span class="hl-muted reveal">Buat 3–10 orang.</span>
+        </h2>
+        <p class="split-side reveal">
+          Pilih temanya, tarik kartunya, jawab sejujurnya.<br />
+          Satu HP buat semua.
+        </p>
+      </div>
+    </section>
+
+    <!-- ═══════════ S3 · Bento: Tema / Contoh kartu / Layar hasil ═══════════ -->
+    <section class="bento" id="tema">
+      <!-- A · Tema (lebar penuh) -->
+      <div class="bento-box bento-wide reveal">
+        <span class="bento-cap"><i class="cap-dot"></i>6 Tema</span>
+        <div class="bento-head">
+          <h3 class="bento-title">Pilih seberapa dalem.</h3>
+          <p class="bento-desc">
+            Enam tema, dari yang receh sampai yang bikin hening.<br />
+            Semua warnanya datang dari kartunya sendiri.
+          </p>
+        </div>
+        <div class="tema-rail">
+          <figure class="tema-card">
+            <img src="/art/bucin-era-front.webp" alt="Kartu tema Bucin Era" loading="lazy" />
+            <figcaption class="tema-name">Bucin Era</figcaption>
+          </figure>
+          <figure class="tema-card">
+            <img src="/art/deep-talk-front.webp" alt="Kartu tema Deep Talk" loading="lazy" />
+            <figcaption class="tema-name">Deep Talk</figcaption>
+          </figure>
+          <figure class="tema-card">
+            <img src="/art/toxic-traits-front.webp" alt="Kartu tema Toxic Traits" loading="lazy" />
+            <figcaption class="tema-name">Toxic Traits</figcaption>
+          </figure>
+          <figure class="tema-card">
+            <img src="/art/career-mode-front.webp" alt="Kartu tema Career Mode" loading="lazy" />
+            <figcaption class="tema-name">Career Mode</figcaption>
+          </figure>
+          <figure class="tema-card">
+            <img src="/art/midnight-front.webp" alt="Kartu tema Midnight" loading="lazy" />
+            <figcaption class="tema-name tema-name-dark">Midnight 🔒</figcaption>
+          </figure>
+          <figure class="tema-card">
+            <img src="/art/uncensored-front.webp" alt="Kartu tema 18+ Uncensored" loading="lazy" />
+            <figcaption class="tema-name"><i class="cap-dot cap-dot-alert"></i>18+ Uncensored</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- B · Contoh kartu (setengah) -->
+      <div class="bento-box bento-half reveal">
+        <span class="bento-cap"><i class="cap-dot"></i>Kartunya</span>
+        <div class="bento-head">
+          <h3 class="bento-title">Kartunya kayak gimana?</h3>
+          <p class="bento-desc">Satu contoh per level. Tap buat buka.</p>
+        </div>
+        <div class="teaser-row">
+          <div class="teaser">
+            <button class="flip3d flip-mini" aria-label="Buka contoh kartu Chill">
+              <div class="flip-scaler">
+                <div class="flip-inner">
+                  <div class="face face-back">
+                    <div class="gcard gcard-back">
+                      <div class="gcard-body">
+                        <img class="gcard-art" src="/art/bucin-era-back.webp" alt="" loading="lazy" />
+                        <div class="gcard-overlay">
+                          <span class="gcard-logo-word gcard-logo-sm">RYLL</span>
+                          <span class="gcard-tap">Chill</span>
+                          <span class="gcard-hint">Tap buat buka</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="face face-front">
+                    <div class="gcard gcard-front">
+                      <div class="gcard-body">
+                        <img class="gcard-art" src="/art/bucin-era-front.webp" alt="" loading="lazy" />
+                        <div class="gcard-overlay">
+                          <span class="gcard-logo-word gcard-logo-sm">RYLL</span>
+                          <p class="gcard-q">Gombalan paling receh yang pernah lo pakai apa?</p>
+                          <span class="gcard-pill">Bucin Era</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </button>
+            <span class="teaser-cap">Chill</span>
+          </div>
+          <div class="teaser">
+            <button class="flip3d flip-mini" aria-label="Buka contoh kartu Personal">
+              <div class="flip-scaler">
+                <div class="flip-inner">
+                  <div class="face face-back">
+                    <div class="gcard gcard-back">
+                      <div class="gcard-body">
+                        <img class="gcard-art" src="/art/deep-talk-back.webp" alt="" loading="lazy" />
+                        <div class="gcard-overlay">
+                          <span class="gcard-logo-word gcard-logo-sm">RYLL</span>
+                          <span class="gcard-tap">Personal</span>
+                          <span class="gcard-hint">Tap buat buka</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="face face-front">
+                    <div class="gcard gcard-front">
+                      <div class="gcard-body">
+                        <img class="gcard-art" src="/art/deep-talk-front.webp" alt="" loading="lazy" />
+                        <div class="gcard-overlay">
+                          <span class="gcard-logo-word gcard-logo-sm">RYLL</span>
+                          <p class="gcard-q">Apa hal kecil yang bikin lo ngerasa dicintai?</p>
+                          <span class="gcard-pill">Deep Talk</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </button>
+            <span class="teaser-cap">Personal</span>
+          </div>
+          <div class="teaser">
+            <button class="flip3d flip-mini" aria-label="Buka contoh kartu Deep">
+              <div class="flip-scaler">
+                <div class="flip-inner">
+                  <div class="face face-back">
+                    <div class="gcard gcard-back">
+                      <div class="gcard-body">
+                        <img class="gcard-art" src="/art/midnight-back.webp" alt="" loading="lazy" />
+                        <div class="gcard-overlay">
+                          <span class="gcard-logo-word gcard-logo-sm">RYLL</span>
+                          <span class="gcard-tap">Deep</span>
+                          <span class="gcard-hint">Tap buat buka</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="face face-front">
+                    <div class="gcard gcard-front">
+                      <div class="gcard-body">
+                        <img class="gcard-art" src="/art/midnight-front.webp" alt="" loading="lazy" />
+                        <div class="gcard-overlay">
+                          <span class="gcard-logo-word gcard-logo-sm">RYLL</span>
+                          <div class="gcard-qwrap">
+                            <p class="gcard-q q-blur">Kapan terakhir lo nangis dan nggak ada yang tau?</p>
+                            <span class="q-note">...yang ini lo buka sendiri.</span>
+                          </div>
+                          <span class="gcard-pill">Midnight</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </button>
+            <span class="teaser-cap">Deep</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- C · Layar hasil (setengah) -->
+      <div class="bento-box bento-half bento-clip reveal">
+        <span class="bento-cap"><i class="cap-dot"></i>Abis Main</span>
+        <div class="bento-head">
+          <h3 class="bento-title">Malemnya ada hasilnya.</h3>
+          <p class="bento-desc">
+            Tiap sesi ditutup satu vonis. Screenshot,
+            lempar ke grup, ributin.
+          </p>
+        </div>
+        <div class="phone" aria-hidden="true">
+          <div class="phone-screen">
+            <span class="ph-kicker">Jawaban paling ngagetin</span>
+            <span class="ph-name">BAGAS</span>
+            <div class="ph-rows">
+              <div class="ph-row"><span>Paling banyak ngeles</span><b>Rina</b></div>
+              <div class="ph-row"><span>Paling jujur</span><b>Dimas</b></div>
+            </div>
+            <div class="ph-foot"><span>Bucin Era · 14 kartu</span><b>ryll.id</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ S4 · Type strip (pola fourmula "AI that …") ═══════════ -->
+    <section class="typestrip" id="kenapa">
+      <span class="bento-cap ts-cap"><i class="cap-dot"></i>RYLL itu</span>
+      <div class="ts-rows">
+        <div class="ts-row">
+          <span class="ts-num">01</span>
+          <h3>Nggak perlu install.</h3>
+          <p>Buka link-nya, langsung main. <br />Ada di browser.</p>
+        </div>
+        <div class="ts-row">
+          <span class="ts-num">02</span>
+          <h3>Nggak perlu akun.</h3>
+          <p>Main sebagai tamu — <br />data lo cuma di HP lo.</p>
+        </div>
+        <div class="ts-row">
+          <span class="ts-num">03</span>
+          <h3>Kartu nggak keulang.</h3>
+          <p>Sekali kebuka, nggak muncul lagi <br />buat grup yang sama.</p>
+        </div>
+        <div class="ts-row">
+          <span class="ts-num">04</span>
+          <h3>Gratis.</h3>
+          <p>Semua tema, semua level.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ S5 · Cara Main: intro split + panel bertumpuk 01–04 ═══════════ -->
+    <section class="split-intro" id="cara-main">
+      <div class="rail">
+        <span class="bento-cap rail-label"><i class="cap-dot"></i>Cara Main</span>
+      </div>
+      <div class="split-main">
+        <h2 class="display">
+          <span class="hl-ink reveal">Dari buka link</span><br />
+          <span class="hl-muted reveal">ke kartu pertama: 18 detik.</span>
+        </h2>
+        <p class="split-side reveal">
+          Nggak ada tutorial. Nggak ada setup.<br />
+          HP siapa aja.
+        </p>
+      </div>
+    </section>
+
+    <div class="panels">
+      <!-- 01 · Pilih tema -->
+      <section class="panel" style="--bg: url('/art/bucin-era-front.webp')">
+        <div class="panel-head">
+          <h3>Pilih tema.</h3>
+          <span class="panel-num">01</span>
+        </div>
+        <div class="panel-tags"><span>6 tema</span><span>3 level</span></div>
+        <p class="panel-desc">
+          Bucin, deep talk, atau toxic — lo yang tentuin seberapa jauh.
+          Selalu mulai santai, naikin level kapan aja.
+        </p>
+        <div class="panel-visual panel-fan">
+          <div class="fan-card" style="--fr: -8deg"><img src="/art/deep-talk-front-thumb.webp" alt="" loading="lazy" /></div>
+          <div class="fan-card" style="--fr: 0deg"><img src="/art/bucin-era-front-thumb.webp" alt="" loading="lazy" /></div>
+          <div class="fan-card" style="--fr: 8deg"><img src="/art/midnight-front-thumb.webp" alt="" loading="lazy" /></div>
+        </div>
+        <a class="btn-light" href="#">Gas Main</a>
+      </section>
+
+      <!-- 02 · Oper HP-nya -->
+      <section class="panel" style="--bg: url('/art/deep-talk-front.webp')">
+        <div class="panel-head">
+          <h3>Oper HP-nya.</h3>
+          <span class="panel-num">02</span>
+        </div>
+        <div class="panel-tags"><span>roda giliran</span><span>kantong nama — adil</span></div>
+        <p class="panel-desc">
+          Satu HP buat semua. Roda yang milih siapa yang kena,
+          punggung kartunya nunjukin nama — nggak bisa ngeles.
+        </p>
+        <div class="panel-visual">
+          <div class="pcard" style="--pr: 5deg">
+            <div class="pcard-scale">
+              <div class="gcard gcard-back">
+                <div class="gcard-body">
+                  <img class="gcard-art" src="/art/deep-talk-back.webp" alt="" loading="lazy" />
+                  <div class="gcard-overlay">
+                    <span class="gcard-logo-word gcard-logo-sm">RYLL</span>
+                    <span class="giliran"><i>Giliran</i><b>SINTA</b></span>
+                    <span class="gcard-hint">Tap buat buka</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a class="btn-light" href="#">Gas Main</a>
+      </section>
+
+      <!-- 03 · Jawab jujur -->
+      <section class="panel panel-dark" style="--bg: url('/art/midnight-front.webp')">
+        <div class="panel-head">
+          <h3>Jawab jujur.</h3>
+          <span class="panel-num">03</span>
+        </div>
+        <div class="panel-tags"><span>nggak boleh ngeles</span><span>naikin level kapan aja</span></div>
+        <p class="panel-desc">
+          Tarik kartunya, baca keras-keras, jawab.
+          Makin dalem levelnya, makin hening ruangannya.
+        </p>
+        <div class="panel-visual">
+          <div class="pcard" style="--pr: -4deg">
+            <div class="pcard-scale">
+              <div class="gcard gcard-front">
+                <div class="gcard-body">
+                  <img class="gcard-art" src="/art/midnight-front.webp" alt="" loading="lazy" />
+                  <div class="gcard-overlay">
+                    <span class="gcard-logo-word gcard-logo-sm">RYLL</span>
+                    <p class="gcard-q">Kapan terakhir lo ketawa buat nutupin sesuatu?</p>
+                    <span class="gcard-pill">Midnight</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a class="btn-light" href="#">Gas Main</a>
+      </section>
+
+      <!-- 04 · Sebarin hasilnya -->
+      <section class="panel" style="--bg: url('/art/career-mode-front.webp')">
+        <div class="panel-head">
+          <h3>Sebarin hasilnya.</h3>
+          <span class="panel-num">04</span>
+        </div>
+        <div class="panel-tags"><span>satu layar, tanpa scroll</span><span>ryll.id</span></div>
+        <p class="panel-desc">
+          Tiap sesi ditutup satu vonis. Screenshot, lempar
+          ke grup — dan minggu depan gantian yang lain jadi tuan rumah.
+        </p>
+        <div class="panel-visual">
+          <div class="phone phone-panel" aria-hidden="true">
+            <div class="phone-screen">
+              <span class="ph-kicker">Jawaban paling ngagetin</span>
+              <span class="ph-name">BAGAS</span>
+              <div class="ph-rows">
+                <div class="ph-row"><span>Paling banyak ngeles</span><b>Rina</b></div>
+                <div class="ph-row"><span>Paling jujur</span><b>Dimas</b></div>
+              </div>
+              <div class="ph-foot"><span>Bucin Era · 14 kartu</span><b>ryll.id</b></div>
+            </div>
+          </div>
+        </div>
+        <a class="btn-light" href="#">Gas Main</a>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
