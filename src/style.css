@@ -1,0 +1,1953 @@
+@import 'tailwindcss';
+
+/* Stack Sans Text — satu variable font, sama dengan PWA. */
+@font-face {
+  font-family: 'Stack Sans Text';
+  src: url('/fonts/stack-sans-text.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Token 1:1 dari collection `RYLL` (lihat Ryll New UI/src/index.css). */
+@theme {
+  --font-sans: 'Stack Sans Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --color-ink: #252421;
+  --color-ink-secondary: #525252;
+  --color-muted: #9a9a9a;
+  --color-inverse: #ffffff;
+
+  --color-surface: #ffffff;
+  --color-surface-secondary: #ececec;
+  --color-surface-dark: #252421;
+
+  --color-hairline: #efede7;
+  --color-hairline-strong: #e5e3dc;
+  --color-selected: #252421;
+  --color-card-line: #c0c0c0;
+
+  --color-alert: #f88787;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+}
+
+@layer base {
+  :root {
+    --tracking-ryll: -0.005em;
+    color-scheme: light;
+    /* Geometri ring. Tinggi total ring = 2r + tinggi kartu mini (0.617r) =
+       2.62r. Radiusnya JANGAN dihitung dari vh mentah — navbar dan headline
+       tingginya tetap, jadi di layar pendek pita kosong buat ring habis duluan
+       dan ring nempel navbar / nabrak headline. Di sini radius diturunkan dari
+       SISA ruang: (tinggi layar − jatah navbar+headline+napas) ÷ 2.62. */
+    --ring-band: calc(100svh - 380px);
+    --ring-r: clamp(120px, min(20vw, var(--ring-band) / 2.62), 470px);
+    --mini-w: calc(var(--ring-r) * 0.47);
+    /* Kartu pusat DITURUNKAN dari --ring-r, jangan dipatok angka sendiri.
+       Dulu --center-scale ditulis mutlak di 5 breakpoint terpisah, jadi tiap
+       kali radius ring berubah proporsinya lepas dan kartu tengah kelihatan
+       kegedean. Sekarang lebarnya selalu 0.70 × radius ring (≈1.5× kartu mini).
+
+       tan(atan2(a, b)) = a/b — satu-satunya cara bikin RASIO TANPA SATUAN dari
+       dua panjang di CSS. calc(--ring-r * .70 / 343) nggak bisa: hasilnya tetap
+       px, dan `scale:` yang dikasih px itu invalid → kartunya balik ke 343×450
+       alias jadi raksasa. */
+    --center-ratio: 0.70;
+    --center-scale: tan(atan2(calc(var(--ring-r) * var(--center-ratio)), 343px));
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* target anchor menu mendarat di bawah navbar floating */
+  [id] {
+    scroll-margin-top: 84px;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-ryll);
+    color: var(--color-ink);
+    background: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  button {
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+}
+
+/* ═══════════ Preloader ═══════════ */
+
+#preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #ffffff;
+  transition: opacity 0.45s ease 0.1s;
+}
+#preloader-count {
+  position: absolute;
+  top: 8px;
+  left: 28px;
+  font-size: clamp(88px, 10vw, 136px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+html.loaded #preloader {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ═══════════ S0 · Navbar ═══════════ */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  pointer-events: none;
+}
+.nav > * {
+  pointer-events: auto;
+}
+
+/* LogoMark — replika komponen Logo PWA (tile kaca + ghost), rasio dari ukuran --lm */
+.logomark {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: var(--lm);
+  height: var(--lm);
+  border-radius: calc(var(--lm) * 0.25);
+  background: #ffffff;
+  border: calc(var(--lm) * 0.0334) solid #ffffff;
+  box-shadow: 0 calc(var(--lm) * 0.1) calc(var(--lm) * 0.158) rgba(22, 29, 36, 0.08);
+}
+.logomark-tile {
+  position: absolute;
+  inset: calc(var(--lm) * 0.1);
+  border-radius: calc(var(--lm) * 0.2083);
+  background-image: linear-gradient(180deg, #ffffff 0%, #f2f2f2 100%);
+  border: calc(var(--lm) * 0.0125) solid #ffffff;
+  box-shadow: 0 calc(var(--lm) * 0.0917) calc(var(--lm) * 0.1834) rgba(134, 134, 134, 0.4);
+}
+.logomark img {
+  position: absolute;
+  width: calc(var(--lm) * 0.439);
+  height: calc(var(--lm) * 0.439);
+  left: calc(var(--lm) * 0.268);
+  top: calc(var(--lm) * 0.293);
+}
+
+/* Pill hitam tengah: Menu + scroll % (pola fourmula) */
+.nav-pill {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-ink);
+  color: var(--color-inverse);
+  border-radius: var(--radius-md);
+  padding: 8px 8px 8px 16px;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(37, 36, 33, 0.12);
+}
+.nav-burger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 18px;
+}
+.nav-burger i {
+  height: 1.5px;
+  background: var(--color-inverse);
+  border-radius: 1px;
+}
+/* label Menu/Close: dua kata ditumpuk di sel grid yang sama,
+   cross-slide halus saat toggle (lama naik, baru masuk dari bawah) */
+.nav-menu-label {
+  font-weight: 500;
+  display: grid;
+  text-align: left;
+}
+.lm {
+  grid-area: 1 / 1;
+  transition:
+    opacity 0.28s ease,
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.lm-close {
+  opacity: 0;
+  transform: translateY(9px);
+}
+html.menu-open .lm-menu {
+  opacity: 0;
+  transform: translateY(-9px);
+}
+html.menu-open .lm-close {
+  opacity: 1;
+  transform: none;
+}
+.nav-progress {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  min-width: 46px;
+  text-align: center;
+}
+
+/* burger → X saat menu terbuka */
+.nav-burger i {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html.menu-open .nav-burger i:first-child {
+  transform: translateY(2.75px) rotate(45deg);
+}
+html.menu-open .nav-burger i:last-child {
+  transform: translateY(-2.75px) rotate(-45deg);
+}
+
+/* ═══════════ Menu panel (turun dari pill nav, pola fourmula) ═══════════ */
+
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  visibility: hidden;
+}
+html.menu-open .menu-overlay {
+  visibility: visible;
+}
+
+.menu-panel {
+  position: fixed;
+  left: 50%;
+  top: 12px;
+  z-index: 46; /* di bawah nav (50): pill tetap jadi header panel */
+  width: min(360px, calc(100vw - 32px));
+  box-sizing: border-box;
+  background: var(--color-ink);
+  color: var(--color-inverse);
+  border-radius: var(--radius-lg); /* 16 = radius panel di DNA */
+  padding: 80px 32px 40px;
+  box-shadow:
+    0 2px 8px rgba(37, 36, 33, 0.16),
+    0 24px 60px rgba(37, 36, 33, 0.28);
+  transform: translateX(-50%) translateY(-14px) scale(0.96);
+  transform-origin: 50% 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.32s ease,
+    visibility 0s linear 0.32s;
+}
+html.menu-open .menu-panel {
+  transform: translateX(-50%);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.28s ease;
+}
+
+/* isi panel: stagger halus per item (--i = urutan) */
+.menu-label,
+.menu-link,
+.menu-rule {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html.menu-open .menu-label,
+html.menu-open .menu-link,
+html.menu-open .menu-rule {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(0.08s + var(--i) * 0.035s);
+}
+
+.menu-label {
+  display: block;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-muted);
+  margin-bottom: 16px;
+}
+.menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.menu-link {
+  color: var(--color-inverse);
+  text-decoration: none;
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 400;
+  width: fit-content;
+  transition-property: opacity, transform, color;
+}
+/* hover roll: gerakan yang sama dengan transisi Menu → Close */
+.menu-link .roll {
+  display: grid;
+}
+.roll-line {
+  grid-area: 1 / 1;
+  transition:
+    opacity 0.28s ease,
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.roll-line:nth-child(2) {
+  opacity: 0;
+  transform: translateY(9px);
+}
+.menu-link:hover .roll-line:first-child,
+.menu-link:focus-visible .roll-line:first-child {
+  opacity: 0;
+  transform: translateY(-9px);
+}
+.menu-link:hover .roll-line:nth-child(2),
+.menu-link:focus-visible .roll-line:nth-child(2) {
+  opacity: 1;
+  transform: none;
+}
+.menu-links-small .menu-link {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+.menu-links-small {
+  gap: 6px;
+}
+.menu-rule {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  margin: 52px 0 26px;
+}
+
+/* Tombol primary RYLL: gradient gelap + rim light atas (DNA) */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #444444 0%, #262630 100%);
+  color: var(--color-inverse);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  text-decoration: none;
+  box-shadow:
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.14),
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 4px 8px rgba(0, 0, 0, 0.02);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.14),
+    0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* ═══════════ S1 · Hero ═══════════ */
+
+.hero {
+  position: relative;
+  height: 100svh;
+  min-height: 640px;
+  overflow: clip;
+}
+
+/* -- ring kartu -- */
+
+.ring-scroll {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%) translateY(var(--sy, 0px)) rotate(var(--sr, 0deg));
+  will-change: transform;
+}
+/* idle: ring berputar pelan seperti RODA — kartu ikut orientasi
+   lingkaran (radial/tangensial): atas tegak, kanan 90°, bawah terbalik */
+.ring-spin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: ring-orbit 110s linear infinite;
+}
+@keyframes ring-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.orbit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* origin WAJIB (0,0): kotak .orbit punya ukuran (dari mini-card),
+     origin default di tengah kotak menggeser pusat lingkaran →
+     ring mengayun saat roda berputar */
+  transform-origin: 0 0;
+  /* rotate(90deg) terakhir = orientasi tangensial: puncak kartu
+     selalu menghadap keluar lingkaran */
+  transform: rotate(var(--a)) translateX(var(--ring-r)) rotate(90deg);
+}
+
+/* kartu mini di ring: frame putih + artwork, rasio persis kartu 343×450 */
+.mini-card {
+  width: var(--mini-w);
+  aspect-ratio: 343 / 450;
+  background: var(--color-surface);
+  border: 0.5px solid var(--color-card-line);
+  border-radius: calc(var(--mini-w) * 0.0583); /* 20/343 */
+  padding: calc(var(--mini-w) * 0.0466); /* 16/343 */
+  box-sizing: border-box;
+  transform: translate(-50%, -50%) scale(var(--in, 0));
+  opacity: var(--in, 0);
+  transition:
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s),
+    opacity 0.5s ease var(--d, 0s);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 24px 44px rgba(134, 134, 134, 0.13);
+}
+html.loaded .mini-card {
+  --in: 1;
+}
+.mini-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: calc(var(--mini-w) * 0.0317); /* 10.88/343 */
+  display: block;
+}
+
+/* -- kartu pusat (replika GameCard 343×450, di-scale) -- */
+
+.center-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%) scale(var(--in, 0.7));
+  opacity: var(--in, 0);
+  transition:
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.45s,
+    opacity 0.5s ease 0.45s;
+}
+html.loaded .center-card {
+  --in: 1;
+}
+
+.flip3d {
+  perspective: 1400px;
+  display: block;
+  width: calc(343px * var(--center-scale));
+  height: calc(450px * var(--center-scale));
+}
+/* scaling terpisah dari flip: scaler mengecilkan dari 0 0,
+   flip berputar di poros tengah kartu */
+.flip-scaler {
+  width: 343px;
+  height: 450px;
+  transform-origin: 0 0;
+  scale: var(--center-scale);
+  transform-style: preserve-3d;
+}
+.flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.flip-inner.flipped {
+  transform: rotateY(180deg);
+}
+.face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.face-front {
+  transform: rotateY(180deg);
+}
+
+/* GameCard vanilla: angka-angka persis dari GameCard.tsx */
+.gcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 343px;
+  height: 450px;
+  box-sizing: border-box;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  overflow: hidden;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 34px 60px rgba(134, 134, 134, 0.16);
+}
+.gcard-front {
+  border: 1px solid var(--color-hairline);
+}
+.gcard-back {
+  border: 0.5px solid var(--color-card-line);
+}
+.gcard-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.gcard-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10.88px;
+}
+.gcard-overlay {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--spacing-lg);
+}
+.gcard-logo {
+  display: flex;
+  align-items: center;
+  gap: 4.1px;
+}
+.gcard-logo-word {
+  color: var(--color-inverse);
+  font-size: 28.7px;
+  line-height: 28.7px;
+  font-weight: 600;
+}
+.gcard-q {
+  margin: 0;
+  text-align: center;
+  color: var(--color-inverse);
+  font-size: 27.21px;
+  line-height: 1.28;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+.gcard-pill {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border-radius: 10.88px;
+  padding: 5.44px 13.6px;
+  font-size: 13.6px;
+  line-height: 21.77px;
+}
+.gcard-tap {
+  text-align: center;
+  color: var(--color-inverse);
+  font-size: 24px;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+  text-shadow: 0 2px 12px rgba(37, 36, 33, 0.4);
+}
+.gcard-hint {
+  text-align: center;
+  color: var(--color-inverse);
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  font-weight: 300;
+  text-shadow: 0 1px 6px rgba(37, 36, 33, 0.35);
+}
+
+/* -- pill tema melayang -- */
+
+/* -- headline -- */
+
+.hero-headline {
+  position: absolute;
+  left: 28px;
+  bottom: 18px;
+  z-index: 5;
+  margin: 0;
+  font-size: clamp(40px, 4.9vw, 72px);
+  font-weight: 500;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  transform: translateY(var(--hp, 0px));
+  will-change: transform;
+}
+.hl-line {
+  display: block;
+  overflow: hidden;
+}
+.hl-line > * {
+  vertical-align: baseline;
+}
+/* reveal per baris */
+.hl-line {
+  clip-path: inset(0 0 110% 0);
+  transition: clip-path 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s);
+}
+html.loaded .hl-line {
+  clip-path: inset(-10% 0 -10% 0);
+}
+.hl-ink {
+  color: var(--color-ink);
+}
+.hl-muted {
+  color: var(--color-muted);
+}
+.sticker {
+  display: inline-block;
+  height: 0.82em;
+  width: auto;
+  vertical-align: -0.08em;
+}
+
+.hero-copyright,
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 24px;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--color-muted);
+}
+.hero-copyright {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.hero-scroll-hint {
+  right: 28px;
+}
+
+/* ═══════════ S2 · Split intro ═══════════ */
+
+.split-intro {
+  display: grid;
+  grid-template-columns: 26% 1fr;
+  border-top: 1px solid var(--color-hairline);
+}
+.rail {
+  border-right: 1px solid var(--color-hairline);
+  padding: 32px 28px;
+}
+.rail-label {
+  position: sticky;
+  top: 96px;
+}
+.split-main {
+  position: relative;
+  padding: 88px 28px 96px 40px;
+}
+.display {
+  margin: 0;
+  font-size: clamp(38px, 5vw, 72px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.018em;
+}
+.split-side {
+  margin: 0;
+  position: absolute;
+  right: 40px;
+  /* duduk DI BAWAH garis display, bukan sejajar — display panjang
+     ("…18 detik.") nggak akan pernah nabrak */
+  bottom: 26px;
+  text-align: right;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--color-ink-secondary);
+}
+/* tablet: ruang horizontal nggak cukup — teks samping turun ke bawah display */
+@media (max-width: 1100px) {
+  .split-side {
+    position: static;
+    text-align: left;
+    margin-top: 28px;
+  }
+}
+
+/* ═══════════ S2 · Pernyataan pembuka + baris angka ═══════════
+   Alternatif dari pola split 26/74 (yang dipakai juga di intro S5 dan S6).
+   Di sini blok teksnya penuh tanpa rail, jadi S2 punya bentuk sendiri dan
+   nggak kebaca sebagai section ketiga yang bentuknya sama.
+   Tugasnya: jawab "ini apa · buat siapa · berapa orang" dalam sekali baca. */
+
+.stmt {
+  border-top: 1px solid var(--color-hairline);
+  padding: clamp(44px, 5.4vw, 88px) 28px clamp(44px, 4.6vw, 72px);
+}
+.stmt-text {
+  margin: clamp(24px, 2.6vw, 40px) 0 0;
+  /* 24ch: kalimatnya patah jadi 3–4 baris pendek — kebaca sebagai pernyataan,
+     bukan paragraf yang melebar sampai tepi layar */
+  max-width: 24ch;
+  font-size: clamp(30px, 4.2vw, 64px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+/* nada kedua: kalimat penjelas turun ke muted, pola dua-nada yang sama
+   dengan headline hero dan display section lain */
+.stmt-muted {
+  color: var(--color-muted);
+}
+
+/* kartu tema nyempil DI DALAM alur kalimat — warna masuk ke section ini tanpa
+   perlu kotak/bento. Semua ukuran pakai em, jadi kartunya ikut mengecil sendiri
+   waktu font display-nya turun di layar kecil. */
+.stmt-cards {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: -0.14em;
+  margin: 0 0.16em 0 0.22em;
+}
+.stmt-cards i {
+  display: block;
+  background: var(--color-surface);
+  border-radius: 0.1em;
+  padding: 0.035em;
+  rotate: var(--r, 0deg);
+  margin-left: -0.16em;
+  box-shadow:
+    0 0.01em 0.03em rgba(0, 0, 0, 0.06),
+    0 0.1em 0.2em rgba(37, 36, 33, 0.16);
+}
+.stmt-cards i:first-child {
+  margin-left: 0;
+}
+.stmt-cards img {
+  display: block;
+  width: 0.53em;
+  aspect-ratio: 311 / 420;
+  object-fit: cover;
+  border-radius: 0.07em;
+}
+
+.stmt-stats {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(20px, 4vw, 72px);
+  margin-top: clamp(36px, 4.4vw, 68px);
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: clamp(14px, 2.2vw, 32px);
+  border-left: 1px solid var(--color-hairline);
+}
+.stat:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.stat b {
+  font-size: clamp(28px, 3.2vw, 50px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.stat span {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-muted);
+}
+
+@media (max-width: 640px) {
+  .stmt {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .stmt-text {
+    max-width: none;
+  }
+  .stmt-stats {
+    gap: 16px;
+  }
+}
+
+/* ═══════════ S3 · Bento: Tema / Contoh kartu / Layar hasil ═══════════ */
+
+/* Pola Apex "how it works 03": kolom kiri sticky + rel nomor bergaris yang
+   keisi mengikuti scroll + blok konten bertumpuk di kanan. Kartu berbingkai
+   milik Apex diganti hairline biar seragam dengan Cara Main & FAQ. */
+.how {
+  border-top: 1px solid var(--color-hairline);
+  padding: clamp(40px, 4.6vw, 76px) 28px clamp(44px, 5vw, 80px);
+}
+.how-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(28px, 4.5vw, 88px);
+}
+
+/* -- kolom kiri: nempel selama blok kanan discroll -- */
+.how-aside {
+  position: sticky;
+  top: 104px;
+  align-self: start;
+}
+.how-aside .bento-cap {
+  display: flex;
+  margin-bottom: clamp(16px, 2vw, 28px);
+}
+.how-title {
+  margin: 0;
+  font-size: clamp(30px, 3.4vw, 52px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.018em;
+}
+.how-desc {
+  margin: 14px 0 0;
+  max-width: 34ch;
+  font-size: 15px;
+  line-height: 26px;
+  color: var(--color-muted);
+}
+.how-cta {
+  margin-top: clamp(22px, 2.6vw, 34px);
+}
+.how-note {
+  display: block;
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-muted);
+}
+
+/* -- kolom kanan: rel nomor + langkah -- */
+.how-steps {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Garis dasar + garis isian. top/height-nya dipasang JS dari posisi asli
+   lingkaran pertama & terakhir — kalau dipatok CSS, garisnya bakal menjulur
+   melewati nomor terakhir sepanjang visual di bawahnya (HP itu tinggi). */
+.how-line {
+  position: absolute;
+  left: calc(var(--num, 46px) / 2);
+  width: 1px;
+  background: var(--color-hairline-strong);
+}
+.how-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 0;
+  background: var(--color-ink);
+}
+
+.how-step {
+  --num: 46px;
+  display: grid;
+  grid-template-columns: var(--num) minmax(0, 1fr);
+  gap: clamp(16px, 2vw, 30px);
+  padding-bottom: clamp(44px, 5vw, 88px);
+}
+.how-step:last-child {
+  padding-bottom: 0;
+}
+/* nomor: latar putih WAJIB — dia yang nutup garis di belakangnya */
+.how-num {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--num);
+  height: var(--num);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-hairline-strong);
+  background: var(--color-surface);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease,
+    color 0.4s ease;
+}
+.how-step.on .how-num {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-inverse);
+}
+.how-cap {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.how-body .sec-desc {
+  margin-bottom: clamp(22px, 2.6vw, 36px);
+}
+/* HP defaultnya `margin: 12px auto` (ketengah). Di dalam langkah dia harus
+   rata kiri, sejajar rail tema dan baris teaser di langkah lain. */
+.how-body .phone {
+  margin-left: 0;
+  margin-right: 0;
+}
+.sec-title {
+  margin: 0;
+  font-size: clamp(26px, 2.9vw, 44px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.016em;
+}
+.sec-desc {
+  margin: 10px 0 0;
+  max-width: 52ch;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--color-muted);
+}
+
+@media (max-width: 900px) {
+  .how {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  /* kolom kiri berhenti sticky dan naik ke atas — di layar sempit nggak ada
+     ruang buat dua kolom sejajar */
+  .how-inner {
+    grid-template-columns: 1fr;
+    gap: clamp(28px, 5vw, 44px);
+  }
+  .how-aside {
+    position: static;
+  }
+  .how-step {
+    --num: 38px;
+    gap: 14px;
+  }
+  .how-num {
+    font-size: 13px;
+  }
+  /* kolom nomor makan 52px, jadi tiga kartu teaser nggak muat lagi dan kartu
+     ketiga kepotong diam-diam. Dijadiin rail geser — kepotongnya jadi sinyal,
+     bukan bug. */
+  .how-body .teaser-row {
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .how-body .teaser-row::-webkit-scrollbar {
+    display: none;
+  }
+  .how-body .teaser {
+    flex: 0 0 auto;
+  }
+}
+.bento-cap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-ink-secondary);
+}
+.cap-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-ink);
+}
+.cap-dot-alert {
+  background: var(--color-alert);
+}
+
+/* -- A · rail tema -- */
+
+/* desktop: 6 kolom rata mengisi penuh lebar container (tanpa sisa kanan);
+   layar sempit: jadi rail scroll (di media query) */
+/* rail full-bleed: kartu terakhir sengaja kepotong tepi kanan layar —
+   sinyal "masih ada lagi" tanpa perlu panah atau kotak pembungkus */
+.tema-rail {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  /* rail hidup di dalam kolom langkah, jadi nggak pakai padding samping.
+     Kartu terakhir kepotong tepi kolom → sinyal "masih ada lagi". */
+  padding-bottom: 4px;
+}
+.tema-rail::-webkit-scrollbar {
+  display: none;
+}
+.tema-card {
+  position: relative;
+  margin: 0;
+  flex: 0 0 clamp(128px, 11vw, 172px);
+  width: auto;
+  aspect-ratio: 311 / 420;
+  border-radius: 14px;
+  overflow: hidden;
+  scroll-snap-align: start;
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 12px 28px rgba(134, 134, 134, 0.1);
+}
+.tema-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.tema-name {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border-radius: var(--radius-md);
+  padding: 4px 12px;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+.tema-name-dark {
+  background: var(--color-surface-dark);
+  color: var(--color-inverse);
+}
+
+/* -- B · teaser flip per level -- */
+
+.teaser-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  justify-items: center;
+  gap: 16px;
+}
+.teaser {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.flip-mini {
+  --center-scale: 0.5; /* ukuran teaser konstan, tak ikut breakpoint hero */
+}
+.teaser-cap {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-ink-secondary);
+}
+.gcard-logo-sm {
+  text-shadow: 0 1px 6px rgba(37, 36, 33, 0.35);
+}
+.gcard-qwrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.q-blur {
+  filter: blur(7px);
+}
+.q-note {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--color-inverse);
+  text-shadow: 0 1px 8px rgba(37, 36, 33, 0.4);
+}
+
+/* -- C · mockup layar hasil -- */
+
+.phone {
+  width: 320px;
+  /* dipotong tepi bawah container ala fourmula, tapi baris ryll.id tetap
+     kebaca — domain adalah jejak satu-satunya dari screenshot (spec §1.6) */
+  margin: 12px auto -34px;
+}
+.phone-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: 28px;
+  padding: 26px 20px 28px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 24px 44px rgba(134, 134, 134, 0.13);
+}
+.ph-kicker {
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  text-align: center;
+}
+.ph-name {
+  font-size: 44px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-align: center;
+}
+.ph-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ph-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+.ph-row span {
+  font-size: 13px;
+  color: var(--color-ink-secondary);
+}
+.ph-row b {
+  font-size: 14px;
+  font-weight: 600;
+}
+.ph-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-hairline);
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--color-muted);
+}
+.ph-foot b {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+/* ═══════════ S4 · Type strip ═══════════ */
+
+/* layout ledger: nomor · statement raksasa · sub-copy kanan — satu garis
+   penuh selebar halaman, tanpa kolom kosong */
+.typestrip {
+  padding: 96px 28px 110px;
+}
+.ts-cap {
+  display: inline-flex;
+  margin-bottom: 44px;
+}
+.ts-rows {
+  display: flex;
+  flex-direction: column;
+}
+.ts-row {
+  display: grid;
+  grid-template-columns: 76px 1fr minmax(220px, 340px);
+  align-items: center;
+  gap: 24px;
+  border-top: 1px solid var(--color-hairline);
+  padding: 36px 0;
+}
+.ts-row:last-child {
+  border-bottom: 1px solid var(--color-hairline);
+}
+.ts-num {
+  font-size: 14px;
+  line-height: 24px;
+  color: #cfcdc7;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.6s ease;
+}
+.ts-row h3 {
+  margin: 0;
+  font-size: clamp(32px, 4.2vw, 60px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.018em;
+  /* mulai abu — menyala jadi ink saat barisnya sampai di tengah layar */
+  color: #cfcdc7;
+  transition: color 0.6s ease;
+}
+.ts-row p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--color-muted);
+  text-align: right;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.5s ease 0.1s,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+}
+.ts-row.on h3,
+.ts-row.on .ts-num {
+  color: var(--color-ink);
+}
+.ts-row.on p {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .typestrip {
+    padding: 64px 16px 72px;
+  }
+  .ts-cap {
+    margin-bottom: 28px;
+  }
+  .ts-row {
+    grid-template-columns: 40px 1fr;
+    gap: 8px 12px;
+    padding: 24px 0;
+    align-items: baseline;
+  }
+  .ts-row h3 {
+    font-size: clamp(28px, 8.2vw, 38px);
+  }
+  .ts-row p {
+    grid-column: 2;
+    text-align: left;
+  }
+  .ts-row p br {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ts-row h3,
+  .ts-row p {
+    transition: none;
+  }
+}
+
+/* ═══════════ S5-ALT · Cara Main "deret editorial" ═══════════
+   Empat langkah jadi empat BARIS dipisah
+   hairline penuh — halaman tetap putih, tipografi yang kerja (pola split S2 +
+   type strip S4). Warna nggak hilang: artwork kartu asli duduk miring di ujung
+   kanan tiap baris, dan mesh temanya nyala tipis di latar baris saat disorot.
+   Seluruh section muat ±1 layar; versi panel butuh 4 layar scroll. */
+
+.steps {
+  padding: 0 28px 8px;
+  border-top: 1px solid var(--color-hairline);
+}
+
+.srow {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(52px, 4.4vw, 74px) minmax(180px, 0.88fr) minmax(0, 1.2fr) clamp(72px, 6.4vw, 94px);
+  grid-template-areas: 'num title desc art';
+  align-items: start;
+  gap: 0 clamp(16px, 2.2vw, 34px);
+  padding: clamp(20px, 2.2vw, 30px) 0;
+  border-bottom: 1px solid var(--color-hairline);
+}
+/* sorot baris: pita abu-abu MUDA hangat yang melebar ke tepi halaman. Sengaja
+   bukan mesh tema — warna tema per baris bikin latarnya nggak ketebak, jadi
+   teks nggak bisa dijamin kebaca. Neutral = kontras sama di keempat baris. */
+.srow::before {
+  content: '';
+  position: absolute;
+  inset: 0 -28px;
+  z-index: -1;
+  background: #f4f3ef;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+/* dikunci ke perangkat ber-pointer: di layar sentuh :hover bisa nyangkut
+   kebawa tap/scroll, dan barisnya bakal ketinggalan gelap */
+@media (hover: hover) {
+  .srow:hover::before {
+    opacity: 1;
+  }
+  /* latarnya terang, jadi teks digelapin satu tingkat — barisnya "menajam"
+     pas disorot. Semua di atas AA terhadap #f4f3ef:
+     deskripsi #525252 → ink, nomor & tag muted → ink-secondary. */
+  .srow:hover .srow-body p {
+    color: var(--color-ink);
+  }
+  .srow:hover .srow-tags,
+  .srow:hover .srow-num {
+    color: var(--color-ink-secondary);
+  }
+  .srow:hover .srow-art {
+    rotate: 0deg;
+    translate: 0 -6px;
+  }
+}
+.srow-title,
+.srow-body p,
+.srow-tags {
+  transition: color 0.4s ease;
+}
+
+.srow-num {
+  grid-area: num;
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.35s ease;
+}
+
+.srow-title {
+  grid-area: title;
+  margin: 0;
+  font-size: clamp(30px, 3.6vw, 54px);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.018em;
+}
+
+.srow-body {
+  grid-area: desc;
+  /* turun sedikit biar baseline-nya duduk di bawah garis judul raksasa,
+     bukan sejajar — pola teks pendukung fourmula */
+  padding-top: clamp(4px, 0.8vw, 12px);
+}
+.srow-body p {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 15px;
+  line-height: 26px;
+  color: var(--color-ink-secondary);
+}
+/* tag jadi teks kecil ber-middot, bukan pill — lebih editorial */
+.srow-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-muted);
+}
+.srow-tags i {
+  width: 3px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* artwork kartu asli, miring, di ujung kanan baris */
+.srow-art {
+  grid-area: art;
+  justify-self: end;
+  align-self: center;
+  width: clamp(72px, 6.4vw, 94px);
+  aspect-ratio: 311 / 420;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-surface);
+  padding: 5px;
+  box-sizing: border-box;
+  rotate: var(--r, -5deg);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    0 18px 34px rgba(37, 36, 33, 0.13);
+  transition:
+    rotate 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.srow-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+.steps-cta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 28px 24px;
+}
+.steps-cta small {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-muted);
+}
+
+/* tablet: kolom deskripsi turun ke bawah judul, artwork tetap di kanan */
+@media (max-width: 1024px) {
+  .srow {
+    grid-template-columns: clamp(48px, 6vw, 68px) 1fr clamp(88px, 11vw, 116px);
+    grid-template-areas:
+      'num title art'
+      'num desc  art';
+    gap: 0 20px;
+  }
+  .srow-body {
+    padding-top: 14px;
+  }
+  .srow-art {
+    align-self: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .steps {
+    padding: 0 20px 4px;
+  }
+  .srow {
+    /* artwork dikecilin dulu supaya kolom judul dapat ruang — kalau nggak,
+       "Oper HP-nya." kepecah jadi "Oper HP-" / "nya." di tanda hubungnya */
+    grid-template-columns: 46px 1fr 64px;
+    gap: 0 14px;
+    padding: 22px 0;
+  }
+  .srow::before {
+    inset: 0 -20px;
+  }
+  .srow-title {
+    font-size: clamp(22px, 6.4vw, 30px);
+  }
+  .srow-num {
+    font-size: 22px;
+  }
+  .srow-art {
+    width: 64px;
+  }
+  .srow-body p {
+    font-size: 14px;
+    line-height: 23px;
+  }
+  /* tag bungkus ke baris kedua di layar sempit → middot bakal nyangkut di
+     ujung baris. Buang titiknya, pisahin pakai jarak aja. */
+  .srow-tags {
+    gap: 4px 14px;
+  }
+  .srow-tags i {
+    display: none;
+  }
+  .steps-cta {
+    flex-direction: column;
+    gap: 12px;
+    padding: 28px 20px 20px;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .srow::before,
+  .srow-num,
+  .srow-art {
+    transition: none;
+  }
+}
+
+/* ═══════════ S6 · FAQ (accordion hairline, pola fourmula) ═══════════
+   Anatomi sama dengan deret S5: baris dipisah hairline penuh, pita abu-abu
+   muda melebar ke tepi halaman saat disorot. Bedanya baris di sini bisa dibuka. */
+
+.faq {
+  padding: 0 28px 8px;
+  border-top: 1px solid var(--color-hairline);
+}
+.faq-item {
+  position: relative;
+  border-bottom: 1px solid var(--color-hairline);
+}
+.faq-item::before {
+  content: '';
+  position: absolute;
+  inset: 0 -28px;
+  z-index: -1;
+  background: #f4f3ef;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.faq-item.open::before {
+  opacity: 1;
+}
+
+.faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  text-align: left;
+  padding: clamp(18px, 1.9vw, 26px) 0;
+  font-size: clamp(19px, 1.9vw, 27px);
+  font-weight: 500;
+  line-height: 1.24;
+  letter-spacing: -0.012em;
+  color: var(--color-ink-secondary);
+  transition: color 0.3s ease;
+}
+.faq-item.open .faq-q {
+  color: var(--color-ink);
+}
+
+/* ikon +: dua garis, yang tegak menyusut jadi − pas kebuka */
+.faq-plus {
+  position: relative;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+.faq-plus i {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  margin-top: -0.75px;
+  border-radius: 1px;
+  background: currentColor;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-plus i:last-child {
+  transform: rotate(90deg);
+}
+.faq-item.open .faq-plus i:last-child {
+  transform: rotate(90deg) scaleX(0);
+}
+.faq-item.open .faq-plus i:first-child {
+  transform: rotate(180deg);
+}
+
+/* buka-tutup pakai grid 0fr→1fr: tinggi konten nggak perlu diukur di JS
+   dan transisinya tetap halus berapa pun panjang jawabannya */
+.faq-a {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-item.open .faq-a {
+  grid-template-rows: 1fr;
+}
+.faq-a > p {
+  overflow: hidden;
+  margin: 0;
+  max-width: 62ch;
+  font-size: 15px;
+  line-height: 26px;
+  color: var(--color-ink-secondary);
+  /* padding ikut kekunci di dalam area yang di-clip, jadi pas ketutup
+     nggak ada sisa ruang yang keliatan */
+  padding-bottom: 0;
+  transition: padding-bottom 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-item.open .faq-a > p {
+  padding-bottom: clamp(18px, 1.9vw, 26px);
+}
+
+@media (hover: hover) {
+  .faq-q:hover {
+    color: var(--color-ink);
+  }
+}
+
+@media (max-width: 640px) {
+  .faq {
+    padding: 0 20px 4px;
+  }
+  .faq-item::before {
+    inset: 0 -20px;
+  }
+  .faq-q {
+    gap: 16px;
+    font-size: 17px;
+  }
+  .faq-a > p {
+    font-size: 14px;
+    line-height: 23px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-a,
+  .faq-a > p,
+  .faq-plus i,
+  .faq-item::before {
+    transition: none;
+  }
+}
+
+/* ═══════════ S7 · Footer (container rounded gelap + dot halftone) ═══════════
+   Satu-satunya blok gelap di halaman — echo punggung kartu. Menggantikan CTA
+   penutup DAN footer sekaligus, seperti fourmula. */
+
+.foot {
+  padding: 12px;
+}
+.foot-box {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 28px;
+  background: var(--color-surface-dark);
+  color: var(--color-inverse);
+  padding: clamp(28px, 3.4vw, 52px);
+  /* ruang buat pita dot di dasar — baris legal nggak boleh nabrak dotnya */
+  padding-bottom: clamp(150px, 18vw, 240px);
+}
+/* konten di atas lapisan dot */
+.foot-top,
+.foot-legal {
+  position: relative;
+  z-index: 1;
+}
+
+.foot-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+}
+.foot-brand {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.1vw, 18px);
+}
+/* tile ikut skala wordmark (±tinggi huruf kapital, 0.7 × font-size) — kalau
+   dipatok px tetap, dia ketinggalan kecil begitu wordmark-nya membesar */
+.foot-brand .logomark {
+  --lm: clamp(40px, 7vw, 105px);
+  /* line-height 0.9 bikin pusat optis huruf naik ±5.5% dari pusat line box,
+     jadi tile-nya diangkat segitu biar sejajar mata, bukan sejajar kotak */
+  margin-bottom: clamp(3px, 0.55vw, 8px);
+}
+.foot-word {
+  font-size: clamp(56px, 10vw, 150px);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+}
+
+.foot-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20px;
+}
+/* pill CTA versi inverse dari .btn-primary */
+.btn-inverse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+.btn-inverse:hover {
+  transform: translateY(-1px);
+}
+.foot-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.foot-links a {
+  font-size: 13px;
+  line-height: 20px;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.foot-links a:hover {
+  color: var(--color-inverse);
+}
+
+.foot-legal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: clamp(48px, 7vw, 96px);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+/* domain sengaja dibesarin: satu-satunya jejak yang kebawa dari screenshot
+   yang dilempar ke grup (spec §1.6) — harus kebaca sekali lirik */
+.foot-domain {
+  font-size: clamp(22px, 2.6vw, 38px);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--color-inverse);
+}
+
+/* -- dot halftone -- */
+.foot-dots,
+.foot-ghost {
+  position: absolute;
+  z-index: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1.4px, transparent 1.5px);
+  background-size: 13px 13px;
+  pointer-events: none;
+}
+.foot-dots {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(130px, 17vw, 230px);
+  -webkit-mask-image: linear-gradient(to top, #000 18%, transparent 94%);
+  mask-image: linear-gradient(to top, #000 18%, transparent 94%);
+}
+/* dot yang sama tapi lebih terang, di-mask pakai ghost → siluetnya muncul
+   dari dalam ladang dot, bukan ditempel sebagai gambar terpisah */
+.foot-ghost {
+  right: clamp(20px, 4vw, 72px);
+  bottom: clamp(-8px, 0.5vw, 8px);
+  width: clamp(130px, 20vw, 260px);
+  aspect-ratio: 1;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.55) 1.7px, transparent 1.8px);
+  -webkit-mask: url('/art/logo-ghost.svg') no-repeat center / contain;
+  mask: url('/art/logo-ghost.svg') no-repeat center / contain;
+}
+
+@media (max-width: 760px) {
+  .foot {
+    padding: 8px;
+  }
+  .foot-box {
+    padding: 24px;
+    padding-bottom: clamp(140px, 34vw, 190px);
+    border-radius: 24px;
+  }
+  .foot-top {
+    flex-direction: column;
+    gap: 28px;
+  }
+  /* di mobile link + CTA pindah rata kiri, sejajar wordmark */
+  .foot-side {
+    align-items: flex-start;
+    width: 100%;
+  }
+  .foot-links {
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
+  }
+  .foot-legal {
+    margin-top: 40px;
+  }
+  .foot-ghost {
+    right: 8px;
+    width: clamp(120px, 34vw, 170px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-inverse,
+  .foot-links a {
+    transition: none;
+  }
+}
+
+/* reveal on-scroll generik */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.shown {
+  opacity: 1;
+  transform: none;
+}
+
+/* ═══════════ Responsive ═══════════ */
+
+/* Nggak ada lagi override --center-scale per breakpoint (dulu ada 4: layar
+   pendek, ≥1600, ≥2200, ≤900). Semuanya nempel ke --ring-r lewat
+   --center-ratio, jadi proporsi ring↔kartu pusat konstan di semua ukuran. */
+
+@media (max-width: 900px) {
+  :root {
+    --ring-r: clamp(140px, min(27vw, 25vh), 240px);
+  }
+  /* ring duduk di tengah ruang antara navbar dan headline */
+  .ring-scroll {
+    top: 45%;
+  }
+  .tema-card {
+    flex-basis: 176px;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --ring-r: clamp(118px, min(36vw, 24vh), 170px);
+    /* di layar sempit kartu pusat sengaja lebih dominan (plan: mobile 375) */
+    --center-ratio: 0.78;
+  }
+  .nav {
+    padding: 14px 16px;
+  }
+  .nav-menu-label {
+    display: none;
+  }
+  /* panel hampir selebar layar — logo & CTA minggir dulu selama menu buka */
+  .nav-logo,
+  .nav-cta {
+    transition: opacity 0.25s ease;
+  }
+  html.menu-open .nav-logo,
+  html.menu-open .nav-cta {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .nav-pill {
+    padding: 8px 8px 8px 14px;
+  }
+  .hero {
+    min-height: 560px;
+  }
+  .ring-scroll {
+    top: 46%;
+  }
+  .hero-headline {
+    left: 16px;
+    right: 16px;
+    bottom: 44px;
+    font-size: clamp(34px, 10.5vw, 44px);
+  }
+  .hero-copyright {
+    left: 16px;
+    transform: none;
+    bottom: 16px;
+  }
+  .hero-scroll-hint {
+    right: 16px;
+    bottom: 16px;
+  }
+  .split-intro {
+    display: block;
+  }
+  .sec-title {
+    font-size: 22px;
+  }
+  .tema-card {
+    flex-basis: 160px;
+  }
+  .flip-mini {
+    --center-scale: 0.3;
+  }
+  .teaser-row {
+    gap: 10px;
+    justify-content: center;
+  }
+  .phone {
+    width: 260px;
+    margin-bottom: -30px;
+  }
+  .rail {
+    border-right: 0;
+    border-bottom: 1px solid var(--color-hairline);
+    padding: 20px 16px;
+  }
+  .split-main {
+    padding: 48px 16px;
+  }
+  .split-side {
+    position: static;
+    text-align: left;
+    margin-top: 32px;
+  }
+}
+
+/* ═══════════ Reduced motion ═══════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .ring-spin {
+    animation: none;
+  }
+  .mini-card,
+  .center-card,
+  .hl-line,
+  .reveal,
+  .menu-panel,
+  .menu-label,
+  .menu-link,
+  .menu-rule,
+  .nav-burger i,
+  .lm,
+  .roll-line,
+  #preloader {
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

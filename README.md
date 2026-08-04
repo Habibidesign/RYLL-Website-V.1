@@ -1,20 +1,24 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# RYLL Website V.2
 
-# Run and deploy your AI Studio app
+Landing page RYLL — kartu obrolan buat yang berani jujur.
 
-This contains everything you need to run your app locally.
+## Develop
 
-View your app in AI Studio: https://ai.studio/apps/drive/1GSVNUwCxjb32E4lkKz7Qt9jCnGkOQdUj
+```bash
+npm install
+npm run dev
+```
 
-## Run Locally
+Buka di HP (WiFi sama): lihat URL `Network:` di terminal (contoh `http://192.168.x.x:5173`).
 
-**Prerequisites:**  Node.js
+## Build
 
+```bash
+npm run build
+npm run preview
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Deploy
+
+- **Vercel / Netlify:** connect repo, build command `npm run build`, output `dist`
+- **GitHub Pages:** aktifkan Pages dari branch `gh-pages` atau workflow Actions
