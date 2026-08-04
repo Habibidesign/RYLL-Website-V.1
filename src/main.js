@@ -50,10 +50,49 @@ function onScroll() {
       // headline: parallax lebih lambat dari konten
       headline.style.setProperty('--hp', `${y * -0.12}px`)
     }
+
+    // numpang rAF yang sama — nggak perlu listener scroll kedua
+    updateHow()
   })
 }
 window.addEventListener('scroll', onScroll, { passive: true })
+window.addEventListener('resize', onScroll, { passive: true })
 onScroll()
+
+/* ═══════════ S3 · Rel langkah: garis keisi + nomor aktif (pola Apex) ═══════════ */
+
+// Garis vertikal di antara nomor keisi seiring scroll, dan nomor yang udah
+// dilewati garis aktivasi jadi solid. Dihitung dari geometri asli tiap frame
+// (bukan disimpan) supaya tetap benar setelah resize atau font baru kepasang.
+const howSteps = [...document.querySelectorAll('.how-step')]
+const howFill = document.getElementById('how-fill')
+const howLine = document.querySelector('.how-line')
+
+const howStepsEl = document.getElementById('how-steps')
+
+function updateHow() {
+  if (!howFill || !howSteps.length) return
+
+  // garis membentang dari PUSAT lingkaran pertama ke pusat lingkaran terakhir
+  const box = howStepsEl.getBoundingClientRect()
+  const first = howSteps[0].querySelector('.how-num').getBoundingClientRect()
+  const last = howSteps[howSteps.length - 1].querySelector('.how-num').getBoundingClientRect()
+  const top = first.top - box.top + first.height / 2
+  howLine.style.top = `${top}px`
+  howLine.style.height = `${last.top - box.top + last.height / 2 - top}px`
+
+  const lineBox = howLine.getBoundingClientRect()
+  // garis aktivasi di 55% tinggi layar — sedikit di bawah tengah, biar nomor
+  // menyala tepat saat blok-nya kebaca, bukan pas baru nongol di bawah
+  const trigger = window.innerHeight * 0.55
+  const filled = Math.min(Math.max(trigger - lineBox.top, 0), lineBox.height)
+  howFill.style.height = `${filled}px`
+
+  for (const step of howSteps) {
+    const num = step.querySelector('.how-num').getBoundingClientRect()
+    step.classList.toggle('on', num.top + num.height / 2 <= trigger)
+  }
+}
 
 /* ═══════════ Menu panel: pill nav → panel turun (pola fourmula) ═══════════ */
 
@@ -161,6 +200,23 @@ const tsObserver = new IntersectionObserver(
   { rootMargin: '-30% 0px -15% 0px' },
 )
 document.querySelectorAll('.ts-row').forEach((el) => tsObserver.observe(el))
+
+/* ═══════════ FAQ accordion (S6) ═══════════ */
+
+// Satu jawaban kebuka dalam satu waktu — biar daftarnya nggak memanjang
+// dan mata nggak kehilangan posisi (pola accordion fourmula).
+const faqItems = [...document.querySelectorAll('.faq-item')]
+
+faqItems.forEach((item) => {
+  const btn = item.querySelector('.faq-q')
+  btn.addEventListener('click', () => {
+    const willOpen = !item.classList.contains('open')
+    faqItems.forEach((other) => {
+      other.classList.toggle('open', other === item && willOpen)
+      other.querySelector('.faq-q').setAttribute('aria-expanded', String(other === item && willOpen))
+    })
+  })
+})
 
 /* ═══════════ Reveal on-scroll (S2 dst.) ═══════════ */
 

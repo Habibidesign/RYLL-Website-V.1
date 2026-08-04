@@ -48,11 +48,25 @@
   :root {
     --tracking-ryll: -0.005em;
     color-scheme: light;
-    /* geometri ring — mengikuti lebar DAN tinggi viewport supaya nggak
-       kepotong di layar pendek / nggak lepas di layar lebar */
-    --ring-r: clamp(150px, min(20vw, 24vh), 280px);
+    /* Geometri ring. Tinggi total ring = 2r + tinggi kartu mini (0.617r) =
+       2.62r. Radiusnya JANGAN dihitung dari vh mentah — navbar dan headline
+       tingginya tetap, jadi di layar pendek pita kosong buat ring habis duluan
+       dan ring nempel navbar / nabrak headline. Di sini radius diturunkan dari
+       SISA ruang: (tinggi layar − jatah navbar+headline+napas) ÷ 2.62. */
+    --ring-band: calc(100svh - 380px);
+    --ring-r: clamp(120px, min(20vw, var(--ring-band) / 2.62), 470px);
     --mini-w: calc(var(--ring-r) * 0.47);
-    --center-scale: 0.45;
+    /* Kartu pusat DITURUNKAN dari --ring-r, jangan dipatok angka sendiri.
+       Dulu --center-scale ditulis mutlak di 5 breakpoint terpisah, jadi tiap
+       kali radius ring berubah proporsinya lepas dan kartu tengah kelihatan
+       kegedean. Sekarang lebarnya selalu 0.70 × radius ring (≈1.5× kartu mini).
+
+       tan(atan2(a, b)) = a/b — satu-satunya cara bikin RASIO TANPA SATUAN dari
+       dua panjang di CSS. calc(--ring-r * .70 / 343) nggak bisa: hasilnya tetap
+       px, dan `scale:` yang dikasih px itu invalid → kartunya balik ke 343×450
+       alias jadi raksasa. */
+    --center-ratio: 0.70;
+    --center-scale: tan(atan2(calc(var(--ring-r) * var(--center-ratio)), 343px));
   }
 
   * {
@@ -700,30 +714,285 @@ html.loaded .hl-line {
   }
 }
 
+/* ═══════════ S2 · Pernyataan pembuka + baris angka ═══════════
+   Alternatif dari pola split 26/74 (yang dipakai juga di intro S5 dan S6).
+   Di sini blok teksnya penuh tanpa rail, jadi S2 punya bentuk sendiri dan
+   nggak kebaca sebagai section ketiga yang bentuknya sama.
+   Tugasnya: jawab "ini apa · buat siapa · berapa orang" dalam sekali baca. */
+
+.stmt {
+  border-top: 1px solid var(--color-hairline);
+  padding: clamp(44px, 5.4vw, 88px) 28px clamp(44px, 4.6vw, 72px);
+}
+.stmt-text {
+  margin: clamp(24px, 2.6vw, 40px) 0 0;
+  /* 24ch: kalimatnya patah jadi 3–4 baris pendek — kebaca sebagai pernyataan,
+     bukan paragraf yang melebar sampai tepi layar */
+  max-width: 24ch;
+  font-size: clamp(30px, 4.2vw, 64px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+/* nada kedua: kalimat penjelas turun ke muted, pola dua-nada yang sama
+   dengan headline hero dan display section lain */
+.stmt-muted {
+  color: var(--color-muted);
+}
+
+/* kartu tema nyempil DI DALAM alur kalimat — warna masuk ke section ini tanpa
+   perlu kotak/bento. Semua ukuran pakai em, jadi kartunya ikut mengecil sendiri
+   waktu font display-nya turun di layar kecil. */
+.stmt-cards {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: -0.14em;
+  margin: 0 0.16em 0 0.22em;
+}
+.stmt-cards i {
+  display: block;
+  background: var(--color-surface);
+  border-radius: 0.1em;
+  padding: 0.035em;
+  rotate: var(--r, 0deg);
+  margin-left: -0.16em;
+  box-shadow:
+    0 0.01em 0.03em rgba(0, 0, 0, 0.06),
+    0 0.1em 0.2em rgba(37, 36, 33, 0.16);
+}
+.stmt-cards i:first-child {
+  margin-left: 0;
+}
+.stmt-cards img {
+  display: block;
+  width: 0.53em;
+  aspect-ratio: 311 / 420;
+  object-fit: cover;
+  border-radius: 0.07em;
+}
+
+.stmt-stats {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(20px, 4vw, 72px);
+  margin-top: clamp(36px, 4.4vw, 68px);
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: clamp(14px, 2.2vw, 32px);
+  border-left: 1px solid var(--color-hairline);
+}
+.stat:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.stat b {
+  font-size: clamp(28px, 3.2vw, 50px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.stat span {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-muted);
+}
+
+@media (max-width: 640px) {
+  .stmt {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .stmt-text {
+    max-width: none;
+  }
+  .stmt-stats {
+    gap: 16px;
+  }
+}
+
 /* ═══════════ S3 · Bento: Tema / Contoh kartu / Layar hasil ═══════════ */
 
-.bento {
+/* Pola Apex "how it works 03": kolom kiri sticky + rel nomor bergaris yang
+   keisi mengikuti scroll + blok konten bertumpuk di kanan. Kartu berbingkai
+   milik Apex diganti hairline biar seragam dengan Cara Main & FAQ. */
+.how {
+  border-top: 1px solid var(--color-hairline);
+  padding: clamp(40px, 4.6vw, 76px) 28px clamp(44px, 5vw, 80px);
+}
+.how-inner {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 0 12px 12px;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(28px, 4.5vw, 88px);
 }
-.bento-box {
+
+/* -- kolom kiri: nempel selama blok kanan discroll -- */
+.how-aside {
+  position: sticky;
+  top: 104px;
+  align-self: start;
+}
+.how-aside .bento-cap {
+  display: flex;
+  margin-bottom: clamp(16px, 2vw, 28px);
+}
+.how-title {
+  margin: 0;
+  font-size: clamp(30px, 3.4vw, 52px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.018em;
+}
+.how-desc {
+  margin: 14px 0 0;
+  max-width: 34ch;
+  font-size: 15px;
+  line-height: 26px;
+  color: var(--color-muted);
+}
+.how-cta {
+  margin-top: clamp(22px, 2.6vw, 34px);
+}
+.how-note {
+  display: block;
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-muted);
+}
+
+/* -- kolom kanan: rel nomor + langkah -- */
+.how-steps {
   position: relative;
-  /* min-width 0: tanpa ini, min-content rail tema (±1000px) memaksa kolom
-     grid melebar dan seluruh bento overflow di layar sempit */
-  min-width: 0;
-  background: #faf9f7;
-  border: 1px solid var(--color-hairline);
-  border-radius: 24px;
-  padding: 28px;
-  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-.bento-wide {
-  grid-column: 1 / -1;
+/* Garis dasar + garis isian. top/height-nya dipasang JS dari posisi asli
+   lingkaran pertama & terakhir — kalau dipatok CSS, garisnya bakal menjulur
+   melewati nomor terakhir sepanjang visual di bawahnya (HP itu tinggi). */
+.how-line {
+  position: absolute;
+  left: calc(var(--num, 46px) / 2);
+  width: 1px;
+  background: var(--color-hairline-strong);
 }
-.bento-clip {
-  overflow: hidden;
+.how-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 0;
+  background: var(--color-ink);
+}
+
+.how-step {
+  --num: 46px;
+  display: grid;
+  grid-template-columns: var(--num) minmax(0, 1fr);
+  gap: clamp(16px, 2vw, 30px);
+  padding-bottom: clamp(44px, 5vw, 88px);
+}
+.how-step:last-child {
+  padding-bottom: 0;
+}
+/* nomor: latar putih WAJIB — dia yang nutup garis di belakangnya */
+.how-num {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--num);
+  height: var(--num);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-hairline-strong);
+  background: var(--color-surface);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease,
+    color 0.4s ease;
+}
+.how-step.on .how-num {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--color-inverse);
+}
+.how-cap {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.how-body .sec-desc {
+  margin-bottom: clamp(22px, 2.6vw, 36px);
+}
+/* HP defaultnya `margin: 12px auto` (ketengah). Di dalam langkah dia harus
+   rata kiri, sejajar rail tema dan baris teaser di langkah lain. */
+.how-body .phone {
+  margin-left: 0;
+  margin-right: 0;
+}
+.sec-title {
+  margin: 0;
+  font-size: clamp(26px, 2.9vw, 44px);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.016em;
+}
+.sec-desc {
+  margin: 10px 0 0;
+  max-width: 52ch;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--color-muted);
+}
+
+@media (max-width: 900px) {
+  .how {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  /* kolom kiri berhenti sticky dan naik ke atas — di layar sempit nggak ada
+     ruang buat dua kolom sejajar */
+  .how-inner {
+    grid-template-columns: 1fr;
+    gap: clamp(28px, 5vw, 44px);
+  }
+  .how-aside {
+    position: static;
+  }
+  .how-step {
+    --num: 38px;
+    gap: 14px;
+  }
+  .how-num {
+    font-size: 13px;
+  }
+  /* kolom nomor makan 52px, jadi tiga kartu teaser nggak muat lagi dan kartu
+     ketiga kepotong diam-diam. Dijadiin rail geser — kepotongnya jadi sinyal,
+     bukan bug. */
+  .how-body .teaser-row {
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .how-body .teaser-row::-webkit-scrollbar {
+    display: none;
+  }
+  .how-body .teaser {
+    flex: 0 0 auto;
+  }
 }
 .bento-cap {
   display: inline-flex;
@@ -743,36 +1012,31 @@ html.loaded .hl-line {
 .cap-dot-alert {
   background: var(--color-alert);
 }
-.bento-head {
-  margin: 44px 0 28px;
-}
-.bento-title {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-.bento-desc {
-  margin: 8px 0 0;
-  max-width: 420px;
-  font-size: 14px;
-  line-height: 24px;
-  color: var(--color-muted);
-}
 
 /* -- A · rail tema -- */
 
 /* desktop: 6 kolom rata mengisi penuh lebar container (tanpa sisa kanan);
    layar sempit: jadi rail scroll (di media query) */
+/* rail full-bleed: kartu terakhir sengaja kepotong tepi kanan layar —
+   sinyal "masih ada lagi" tanpa perlu panah atau kotak pembungkus */
 .tema-rail {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  display: flex;
   gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  /* rail hidup di dalam kolom langkah, jadi nggak pakai padding samping.
+     Kartu terakhir kepotong tepi kolom → sinyal "masih ada lagi". */
+  padding-bottom: 4px;
+}
+.tema-rail::-webkit-scrollbar {
+  display: none;
 }
 .tema-card {
   position: relative;
   margin: 0;
+  flex: 0 0 clamp(128px, 11vw, 172px);
   width: auto;
   aspect-ratio: 311 / 420;
   border-radius: 14px;
@@ -1021,225 +1285,532 @@ html.loaded .hl-line {
   }
 }
 
-/* ═══════════ S5 · Panel Cara Main (sticky stack, pola fourmula 01–04) ═══════════ */
+/* ═══════════ S5-ALT · Cara Main "deret editorial" ═══════════
+   Empat langkah jadi empat BARIS dipisah
+   hairline penuh — halaman tetap putih, tipografi yang kerja (pola split S2 +
+   type strip S4). Warna nggak hilang: artwork kartu asli duduk miring di ujung
+   kanan tiap baris, dan mesh temanya nyala tipis di latar baris saat disorot.
+   Seluruh section muat ±1 layar; versi panel butuh 4 layar scroll. */
 
-.panels {
-  padding: 0 12px 12px;
+.steps {
+  padding: 0 28px 8px;
+  border-top: 1px solid var(--color-hairline);
 }
-.panel {
-  position: sticky;
-  top: 12px;
-  height: calc(100svh - 24px);
-  min-height: 560px;
-  margin-bottom: 12px;
-  border-radius: 24px;
-  overflow: hidden;
-  box-sizing: border-box;
-  padding: 40px 44px;
-  color: var(--color-ink);
-  isolation: isolate;
-  background: #faf9f7;
+
+.srow {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(52px, 4.4vw, 74px) minmax(180px, 0.88fr) minmax(0, 1.2fr) clamp(72px, 6.4vw, 94px);
+  grid-template-areas: 'num title desc art';
+  align-items: start;
+  gap: 0 clamp(16px, 2.2vw, 34px);
+  padding: clamp(20px, 2.2vw, 30px) 0;
+  border-bottom: 1px solid var(--color-hairline);
 }
-/* mesh tema jadi background: artwork di-blow up + blur → gradient penuh */
-.panel::before {
+/* sorot baris: pita abu-abu MUDA hangat yang melebar ke tepi halaman. Sengaja
+   bukan mesh tema — warna tema per baris bikin latarnya nggak ketebak, jadi
+   teks nggak bisa dijamin kebaca. Neutral = kontras sama di keempat baris. */
+.srow::before {
   content: '';
   position: absolute;
-  inset: -10%;
-  z-index: -2;
-  background-image: var(--bg);
-  background-size: cover;
-  background-position: center;
-  filter: blur(34px) saturate(1.05);
-  transform: scale(1.15);
-}
-/* veil tipis biar teks ink tetap kebaca di atas mesh terang */
-.panel::after {
-  content: '';
-  position: absolute;
-  inset: 0;
+  inset: 0 -28px;
   z-index: -1;
-  background: rgba(255, 255, 255, 0.22);
+  background: #f4f3ef;
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
-.panel-dark {
-  color: var(--color-inverse);
+/* dikunci ke perangkat ber-pointer: di layar sentuh :hover bisa nyangkut
+   kebawa tap/scroll, dan barisnya bakal ketinggalan gelap */
+@media (hover: hover) {
+  .srow:hover::before {
+    opacity: 1;
+  }
+  /* latarnya terang, jadi teks digelapin satu tingkat — barisnya "menajam"
+     pas disorot. Semua di atas AA terhadap #f4f3ef:
+     deskripsi #525252 → ink, nomor & tag muted → ink-secondary. */
+  .srow:hover .srow-body p {
+    color: var(--color-ink);
+  }
+  .srow:hover .srow-tags,
+  .srow:hover .srow-num {
+    color: var(--color-ink-secondary);
+  }
+  .srow:hover .srow-art {
+    rotate: 0deg;
+    translate: 0 -6px;
+  }
 }
-.panel-dark::after {
-  background: rgba(20, 24, 22, 0.25);
+.srow-title,
+.srow-body p,
+.srow-tags {
+  transition: color 0.4s ease;
 }
 
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
+.srow-num {
+  grid-area: num;
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.35s ease;
 }
-.panel-head h3 {
+
+.srow-title {
+  grid-area: title;
   margin: 0;
-  font-size: clamp(40px, 5vw, 72px);
+  font-size: clamp(30px, 3.6vw, 54px);
   font-weight: 500;
   line-height: 1.04;
   letter-spacing: -0.018em;
 }
-.panel-num {
-  font-size: clamp(40px, 5vw, 72px);
-  font-weight: 500;
-  line-height: 1.04;
-  letter-spacing: -0.018em;
-  opacity: 0.38;
+
+.srow-body {
+  grid-area: desc;
+  /* turun sedikit biar baseline-nya duduk di bawah garis judul raksasa,
+     bukan sejajar — pola teks pendukung fourmula */
+  padding-top: clamp(4px, 0.8vw, 12px);
 }
-.panel-tags {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 22px;
-}
-.panel-tags span {
-  border: 1px solid;
-  border-color: color-mix(in srgb, currentColor 32%, transparent);
-  border-radius: var(--radius-md);
-  padding: 6px 14px;
-  font-size: 13px;
-  line-height: 20px;
-}
-.panel-desc {
-  margin: 18px 0 0;
-  max-width: 430px;
+.srow-body p {
+  margin: 0;
+  max-width: 44ch;
   font-size: 15px;
   line-height: 26px;
-  opacity: 0.82;
+  color: var(--color-ink-secondary);
+}
+/* tag jadi teks kecil ber-middot, bukan pill — lebih editorial */
+.srow-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--color-muted);
+}
+.srow-tags i {
+  width: 3px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  opacity: 0.6;
 }
 
-.panel-visual {
-  position: absolute;
-  right: 52px;
-  bottom: 48px;
-}
-/* kartu statis di panel: GameCard 343×450 di-scale */
-.pcard {
-  width: calc(343px * 0.62);
-  height: calc(450px * 0.62);
-  transform: rotate(var(--pr, 0deg));
-}
-.pcard-scale {
-  width: 343px;
-  height: 450px;
-  transform-origin: 0 0;
-  scale: 0.62;
-}
-.giliran {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.giliran i {
-  font-style: normal;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.8);
-  text-shadow: 0 1px 6px rgba(37, 36, 33, 0.35);
-}
-.giliran b {
-  font-size: 40px;
-  font-weight: 500;
-  color: var(--color-inverse);
-  line-height: 1.3;
-  text-shadow: 0 2px 12px rgba(37, 36, 33, 0.4);
-}
-/* 01: kipas 3 kartu tema */
-.panel-fan {
-  display: flex;
-  align-items: flex-end;
-}
-.fan-card {
-  width: 158px;
+/* artwork kartu asli, miring, di ujung kanan baris */
+.srow-art {
+  grid-area: art;
+  justify-self: end;
+  align-self: center;
+  width: clamp(72px, 6.4vw, 94px);
   aspect-ratio: 311 / 420;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   background: var(--color-surface);
-  padding: 7px;
+  padding: 5px;
   box-sizing: border-box;
-  transform: rotate(var(--fr, 0deg));
-  margin-left: -26px;
+  rotate: var(--r, -5deg);
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.05),
-    0 20px 40px rgba(37, 36, 33, 0.14);
+    0 18px 34px rgba(37, 36, 33, 0.13);
+  transition:
+    rotate 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fan-card:first-child {
-  margin-left: 0;
-}
-.fan-card img {
+.srow-art img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 7px;
+  border-radius: 6px;
   display: block;
 }
-.phone-panel {
-  width: 290px;
-  margin: 0;
+
+.steps-cta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 28px 24px;
+}
+.steps-cta small {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-muted);
 }
 
-/* CTA putih di tengah-bawah panel (pola "Get started" fourmula) */
-.btn-light {
+/* tablet: kolom deskripsi turun ke bawah judul, artwork tetap di kanan */
+@media (max-width: 1024px) {
+  .srow {
+    grid-template-columns: clamp(48px, 6vw, 68px) 1fr clamp(88px, 11vw, 116px);
+    grid-template-areas:
+      'num title art'
+      'num desc  art';
+    gap: 0 20px;
+  }
+  .srow-body {
+    padding-top: 14px;
+  }
+  .srow-art {
+    align-self: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .steps {
+    padding: 0 20px 4px;
+  }
+  .srow {
+    /* artwork dikecilin dulu supaya kolom judul dapat ruang — kalau nggak,
+       "Oper HP-nya." kepecah jadi "Oper HP-" / "nya." di tanda hubungnya */
+    grid-template-columns: 46px 1fr 64px;
+    gap: 0 14px;
+    padding: 22px 0;
+  }
+  .srow::before {
+    inset: 0 -20px;
+  }
+  .srow-title {
+    font-size: clamp(22px, 6.4vw, 30px);
+  }
+  .srow-num {
+    font-size: 22px;
+  }
+  .srow-art {
+    width: 64px;
+  }
+  .srow-body p {
+    font-size: 14px;
+    line-height: 23px;
+  }
+  /* tag bungkus ke baris kedua di layar sempit → middot bakal nyangkut di
+     ujung baris. Buang titiknya, pisahin pakai jarak aja. */
+  .srow-tags {
+    gap: 4px 14px;
+  }
+  .srow-tags i {
+    display: none;
+  }
+  .steps-cta {
+    flex-direction: column;
+    gap: 12px;
+    padding: 28px 20px 20px;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .srow::before,
+  .srow-num,
+  .srow-art {
+    transition: none;
+  }
+}
+
+/* ═══════════ S6 · FAQ (accordion hairline, pola fourmula) ═══════════
+   Anatomi sama dengan deret S5: baris dipisah hairline penuh, pita abu-abu
+   muda melebar ke tepi halaman saat disorot. Bedanya baris di sini bisa dibuka. */
+
+.faq {
+  padding: 0 28px 8px;
+  border-top: 1px solid var(--color-hairline);
+}
+.faq-item {
+  position: relative;
+  border-bottom: 1px solid var(--color-hairline);
+}
+.faq-item::before {
+  content: '';
   position: absolute;
-  left: 50%;
-  bottom: 40px;
-  transform: translateX(-50%);
+  inset: 0 -28px;
+  z-index: -1;
+  background: #f4f3ef;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.faq-item.open::before {
+  opacity: 1;
+}
+
+.faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  text-align: left;
+  padding: clamp(18px, 1.9vw, 26px) 0;
+  font-size: clamp(19px, 1.9vw, 27px);
+  font-weight: 500;
+  line-height: 1.24;
+  letter-spacing: -0.012em;
+  color: var(--color-ink-secondary);
+  transition: color 0.3s ease;
+}
+.faq-item.open .faq-q {
+  color: var(--color-ink);
+}
+
+/* ikon +: dua garis, yang tegak menyusut jadi − pas kebuka */
+.faq-plus {
+  position: relative;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+.faq-plus i {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  margin-top: -0.75px;
+  border-radius: 1px;
+  background: currentColor;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-plus i:last-child {
+  transform: rotate(90deg);
+}
+.faq-item.open .faq-plus i:last-child {
+  transform: rotate(90deg) scaleX(0);
+}
+.faq-item.open .faq-plus i:first-child {
+  transform: rotate(180deg);
+}
+
+/* buka-tutup pakai grid 0fr→1fr: tinggi konten nggak perlu diukur di JS
+   dan transisinya tetap halus berapa pun panjang jawabannya */
+.faq-a {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-item.open .faq-a {
+  grid-template-rows: 1fr;
+}
+.faq-a > p {
+  overflow: hidden;
+  margin: 0;
+  max-width: 62ch;
+  font-size: 15px;
+  line-height: 26px;
+  color: var(--color-ink-secondary);
+  /* padding ikut kekunci di dalam area yang di-clip, jadi pas ketutup
+     nggak ada sisa ruang yang keliatan */
+  padding-bottom: 0;
+  transition: padding-bottom 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-item.open .faq-a > p {
+  padding-bottom: clamp(18px, 1.9vw, 26px);
+}
+
+@media (hover: hover) {
+  .faq-q:hover {
+    color: var(--color-ink);
+  }
+}
+
+@media (max-width: 640px) {
+  .faq {
+    padding: 0 20px 4px;
+  }
+  .faq-item::before {
+    inset: 0 -20px;
+  }
+  .faq-q {
+    gap: 16px;
+    font-size: 17px;
+  }
+  .faq-a > p {
+    font-size: 14px;
+    line-height: 23px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-a,
+  .faq-a > p,
+  .faq-plus i,
+  .faq-item::before {
+    transition: none;
+  }
+}
+
+/* ═══════════ S7 · Footer (container rounded gelap + dot halftone) ═══════════
+   Satu-satunya blok gelap di halaman — echo punggung kartu. Menggantikan CTA
+   penutup DAN footer sekaligus, seperti fourmula. */
+
+.foot {
+  padding: 12px;
+}
+.foot-box {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 28px;
+  background: var(--color-surface-dark);
+  color: var(--color-inverse);
+  padding: clamp(28px, 3.4vw, 52px);
+  /* ruang buat pita dot di dasar — baris legal nggak boleh nabrak dotnya */
+  padding-bottom: clamp(150px, 18vw, 240px);
+}
+/* konten di atas lapisan dot */
+.foot-top,
+.foot-legal {
+  position: relative;
+  z-index: 1;
+}
+
+.foot-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+}
+.foot-brand {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 1.1vw, 18px);
+}
+/* tile ikut skala wordmark (±tinggi huruf kapital, 0.7 × font-size) — kalau
+   dipatok px tetap, dia ketinggalan kecil begitu wordmark-nya membesar */
+.foot-brand .logomark {
+  --lm: clamp(40px, 7vw, 105px);
+  /* line-height 0.9 bikin pusat optis huruf naik ±5.5% dari pusat line box,
+     jadi tile-nya diangkat segitu biar sejajar mata, bukan sejajar kotak */
+  margin-bottom: clamp(3px, 0.55vw, 8px);
+}
+.foot-word {
+  font-size: clamp(56px, 10vw, 150px);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+}
+
+.foot-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20px;
+}
+/* pill CTA versi inverse dari .btn-primary */
+.btn-inverse {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   background: var(--color-surface);
   color: var(--color-ink);
   font-size: 14px;
   font-weight: 500;
   border-radius: var(--radius-md);
-  padding: 12px 22px;
+  padding: 12px 20px;
   text-decoration: none;
-  box-shadow:
-    0 2px 6px rgba(37, 36, 33, 0.12),
-    0 10px 28px rgba(37, 36, 33, 0.14);
   transition: transform 0.15s ease;
 }
-.btn-light:hover {
-  transform: translateX(-50%) translateY(-1px);
+.btn-inverse:hover {
+  transform: translateY(-1px);
+}
+.foot-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.foot-links a {
+  font-size: 13px;
+  line-height: 20px;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+.foot-links a:hover {
+  color: var(--color-inverse);
 }
 
-@media (max-width: 900px) {
-  .panels {
-    padding: 0 8px 8px;
+.foot-legal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: clamp(48px, 7vw, 96px);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+/* domain sengaja dibesarin: satu-satunya jejak yang kebawa dari screenshot
+   yang dilempar ke grup (spec §1.6) — harus kebaca sekali lirik */
+.foot-domain {
+  font-size: clamp(22px, 2.6vw, 38px);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--color-inverse);
+}
+
+/* -- dot halftone -- */
+.foot-dots,
+.foot-ghost {
+  position: absolute;
+  z-index: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1.4px, transparent 1.5px);
+  background-size: 13px 13px;
+  pointer-events: none;
+}
+.foot-dots {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(130px, 17vw, 230px);
+  -webkit-mask-image: linear-gradient(to top, #000 18%, transparent 94%);
+  mask-image: linear-gradient(to top, #000 18%, transparent 94%);
+}
+/* dot yang sama tapi lebih terang, di-mask pakai ghost → siluetnya muncul
+   dari dalam ladang dot, bukan ditempel sebagai gambar terpisah */
+.foot-ghost {
+  right: clamp(20px, 4vw, 72px);
+  bottom: clamp(-8px, 0.5vw, 8px);
+  width: clamp(130px, 20vw, 260px);
+  aspect-ratio: 1;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.55) 1.7px, transparent 1.8px);
+  -webkit-mask: url('/art/logo-ghost.svg') no-repeat center / contain;
+  mask: url('/art/logo-ghost.svg') no-repeat center / contain;
+}
+
+@media (max-width: 760px) {
+  .foot {
+    padding: 8px;
   }
-  .panel {
+  .foot-box {
     padding: 24px;
-    top: 8px;
-    height: calc(100svh - 16px);
-    margin-bottom: 8px;
+    padding-bottom: clamp(140px, 34vw, 190px);
+    border-radius: 24px;
   }
-  .panel-head h3,
-  .panel-num {
-    font-size: clamp(32px, 7.4vw, 48px);
+  .foot-top {
+    flex-direction: column;
+    gap: 28px;
   }
-  .panel-visual {
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 96px;
+  /* di mobile link + CTA pindah rata kiri, sejajar wordmark */
+  .foot-side {
+    align-items: flex-start;
+    width: 100%;
   }
-  .pcard {
-    width: calc(343px * 0.48);
-    height: calc(450px * 0.48);
+  .foot-links {
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
   }
-  .pcard-scale {
-    scale: 0.48;
+  .foot-legal {
+    margin-top: 40px;
   }
-  .fan-card {
-    width: 108px;
+  .foot-ghost {
+    right: 8px;
+    width: clamp(120px, 34vw, 170px);
   }
-  .phone-panel {
-    width: 240px;
-  }
-  .btn-light {
-    bottom: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-inverse,
+  .foot-links a {
+    transition: none;
   }
 }
 
@@ -1258,63 +1829,28 @@ html.loaded .hl-line {
 
 /* ═══════════ Responsive ═══════════ */
 
-/* layar pendek (laptop kecil / browser dengan banyak toolbar):
-   kartu pusat ikut mengecil biar ring nggak sesak */
-@media (max-height: 840px) {
-  :root {
-    --center-scale: 0.38;
-  }
-}
-
-/* layar BESAR: ring + kartu ikut membesar (cap 280px dilepas),
-   koefisien vh dinaikkan karena porsi navbar/headline makin kecil */
-@media (min-width: 1600px) and (min-height: 950px) {
-  :root {
-    --ring-r: clamp(280px, min(20vw, 29vh), 470px);
-    --center-scale: 0.55;
-  }
-}
-@media (min-width: 2200px) and (min-height: 1150px) {
-  :root {
-    --center-scale: 0.66;
-  }
-}
+/* Nggak ada lagi override --center-scale per breakpoint (dulu ada 4: layar
+   pendek, ≥1600, ≥2200, ≤900). Semuanya nempel ke --ring-r lewat
+   --center-ratio, jadi proporsi ring↔kartu pusat konstan di semua ukuran. */
 
 @media (max-width: 900px) {
   :root {
     --ring-r: clamp(140px, min(27vw, 25vh), 240px);
-    --center-scale: 0.40;
   }
   /* ring duduk di tengah ruang antara navbar dan headline */
   .ring-scroll {
     top: 45%;
   }
-  .bento {
-    grid-template-columns: 1fr;
-  }
-  /* layar sempit: grid 6 kolom kesempitan → balik jadi rail scroll */
-  .tema-rail {
-    display: flex;
-    gap: 14px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 8px;
-    scrollbar-width: none;
-  }
-  .tema-rail::-webkit-scrollbar {
-    display: none;
-  }
   .tema-card {
-    flex: 0 0 auto;
-    width: 176px;
-    scroll-snap-align: start;
+    flex-basis: 176px;
   }
 }
 
 @media (max-width: 640px) {
   :root {
     --ring-r: clamp(118px, min(36vw, 24vh), 170px);
-    --center-scale: 0.32;
+    /* di layar sempit kartu pusat sengaja lebih dominan (plan: mobile 375) */
+    --center-ratio: 0.78;
   }
   .nav {
     padding: 14px 16px;
@@ -1359,22 +1895,11 @@ html.loaded .hl-line {
   .split-intro {
     display: block;
   }
-  .bento {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    padding: 0 8px 8px;
-  }
-  .bento-box {
-    padding: 20px;
-  }
-  .bento-head {
-    margin: 32px 0 22px;
-  }
-  .bento-title {
+  .sec-title {
     font-size: 22px;
   }
   .tema-card {
-    width: 160px;
+    flex-basis: 160px;
   }
   .flip-mini {
     --center-scale: 0.3;

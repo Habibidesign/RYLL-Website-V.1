@@ -45,8 +45,7 @@
         <span class="nav-progress" id="scroll-progress">0%</span>
       </button>
 
-      <!-- TODO: arahkan ke URL PWA begitu domainnya diputuskan -->
-      <a class="btn-primary nav-cta" href="#" id="cta-main">Gas Main</a>
+      <a class="btn-primary nav-cta" href="https://ryll-app.vercel.app/" target="_blank" rel="noopener" id="cta-main">Gas Main</a>
     </header>
 
     <!-- ═══════════ Menu panel (pola fourmula: turun dari pill nav) ═══════════ -->
@@ -164,35 +163,54 @@
     </section>
 
     <!-- ═══════════ S2 · Split intro (rail kiri + display 2 nada) ═══════════ -->
-    <section class="split-intro" id="apaan">
-      <div class="rail">
-        <span class="bento-cap rail-label"><i class="cap-dot"></i>Apaan nih</span>
-      </div>
-      <div class="split-main">
-        <h2 class="display">
-          <span class="hl-ink reveal">Kartu obrolan.</span><br />
-          <span class="hl-muted reveal">Buat 3–10 orang.</span>
-        </h2>
-        <p class="split-side reveal">
-          Pilih temanya, tarik kartunya, jawab sejujurnya.<br />
-          Satu HP buat semua.
-        </p>
+    <section class="stmt" id="apaan">
+      <span class="bento-cap reveal"><i class="cap-dot"></i>Apaan nih</span>
+      <h2 class="stmt-text reveal">
+        Kartu obrolan<span class="stmt-cards" aria-hidden="true"
+          ><i style="--r: -8deg"><img src="/art/bucin-era-front-thumb.webp" alt="" loading="lazy" /></i
+          ><i style="--r: 2deg"><img src="/art/deep-talk-front-thumb.webp" alt="" loading="lazy" /></i
+          ><i style="--r: 10deg"><img src="/art/midnight-front-thumb.webp" alt="" loading="lazy" /></i
+        ></span>buat 3–10 orang.
+        <span class="stmt-muted">Pilih temanya, tarik kartunya, jawab sejujurnya.</span>
+      </h2>
+      <div class="stmt-stats reveal">
+        <div class="stat"><b>3–10</b><span>orang</span></div>
+        <div class="stat"><b>6</b><span>tema</span></div>
+        <div class="stat"><b>3</b><span>level</span></div>
+        <div class="stat"><b>1</b><span>HP buat semua</span></div>
       </div>
     </section>
 
     <!-- ═══════════ S3 · Bento: Tema / Contoh kartu / Layar hasil ═══════════ -->
-    <section class="bento" id="tema">
-      <!-- A · Tema (lebar penuh) -->
-      <div class="bento-box bento-wide reveal">
-        <span class="bento-cap"><i class="cap-dot"></i>6 Tema</span>
-        <div class="bento-head">
-          <h3 class="bento-title">Pilih seberapa dalem.</h3>
-          <p class="bento-desc">
-            Enam tema, dari yang receh sampai yang bikin hening.<br />
-            Semua warnanya datang dari kartunya sendiri.
+    <!-- Pola Apex "how it works 03": kolom kiri sticky · rel nomor yang keisi
+         mengikuti scroll · blok konten bertumpuk di kanan. Kartu berbingkai
+         milik Apex sengaja NGGAK dipakai — di sini pemisahnya hairline, biar
+         seragam sama Cara Main & FAQ. -->
+    <section class="how" id="tema">
+      <div class="how-inner">
+        <aside class="how-aside">
+          <span class="bento-cap"><i class="cap-dot"></i>Isinya</span>
+          <h2 class="how-title">Isinya apa aja.</h2>
+          <p class="how-desc">
+            Enam tema, tiga level, dan satu layar hasil buat nutup malemnya.
           </p>
-        </div>
-        <div class="tema-rail">
+          <a class="btn-primary how-cta" href="https://ryll-app.vercel.app/" target="_blank" rel="noopener">Gas Main</a>
+          <small class="how-note">Gratis. Tanpa akun.</small>
+        </aside>
+
+        <ol class="how-steps" id="how-steps">
+          <span class="how-line" aria-hidden="true"><i class="how-fill" id="how-fill"></i></span>
+
+          <li class="how-step">
+            <span class="how-num" aria-hidden="true">1</span>
+            <div class="how-body">
+              <span class="how-cap">6 Tema</span>
+              <h3 class="sec-title">Pilih seberapa dalem.</h3>
+              <p class="sec-desc">
+                Enam tema, dari yang receh sampai yang bikin hening.
+                Semua warnanya datang dari kartunya sendiri.
+              </p>
+              <div class="tema-rail">
           <figure class="tema-card">
             <img src="/art/bucin-era-front.webp" alt="Kartu tema Bucin Era" loading="lazy" />
             <figcaption class="tema-name">Bucin Era</figcaption>
@@ -217,17 +235,17 @@
             <img src="/art/uncensored-front.webp" alt="Kartu tema 18+ Uncensored" loading="lazy" />
             <figcaption class="tema-name"><i class="cap-dot cap-dot-alert"></i>18+ Uncensored</figcaption>
           </figure>
-        </div>
-      </div>
+              </div>
+            </div>
+          </li>
 
-      <!-- B · Contoh kartu (setengah) -->
-      <div class="bento-box bento-half reveal">
-        <span class="bento-cap"><i class="cap-dot"></i>Kartunya</span>
-        <div class="bento-head">
-          <h3 class="bento-title">Kartunya kayak gimana?</h3>
-          <p class="bento-desc">Satu contoh per level. Tap buat buka.</p>
-        </div>
-        <div class="teaser-row">
+          <li class="how-step">
+            <span class="how-num" aria-hidden="true">2</span>
+            <div class="how-body">
+              <span class="how-cap">Kartunya</span>
+              <h3 class="sec-title">Kartunya kayak gimana?</h3>
+              <p class="sec-desc">Satu contoh per level. Tap buat buka.</p>
+              <div class="teaser-row">
           <div class="teaser">
             <button class="flip3d flip-mini" aria-label="Buka contoh kartu Chill">
               <div class="flip-scaler">
@@ -330,20 +348,20 @@
             </button>
             <span class="teaser-cap">Deep</span>
           </div>
-        </div>
-      </div>
+              </div>
+            </div>
+          </li>
 
-      <!-- C · Layar hasil (setengah) -->
-      <div class="bento-box bento-half bento-clip reveal">
-        <span class="bento-cap"><i class="cap-dot"></i>Abis Main</span>
-        <div class="bento-head">
-          <h3 class="bento-title">Malemnya ada hasilnya.</h3>
-          <p class="bento-desc">
-            Tiap sesi ditutup satu vonis. Screenshot,
-            lempar ke grup, ributin.
-          </p>
-        </div>
-        <div class="phone" aria-hidden="true">
+          <li class="how-step">
+            <span class="how-num" aria-hidden="true">3</span>
+            <div class="how-body">
+              <span class="how-cap">Abis Main</span>
+              <h3 class="sec-title">Malemnya ada hasilnya.</h3>
+              <p class="sec-desc">
+                Tiap sesi ditutup satu vonis. Screenshot,
+                lempar ke grup, ributin.
+              </p>
+              <div class="phone" aria-hidden="true">
           <div class="phone-screen">
             <span class="ph-kicker">Jawaban paling ngagetin</span>
             <span class="ph-name">BAGAS</span>
@@ -353,7 +371,10 @@
             </div>
             <div class="ph-foot"><span>Bucin Era · 14 kartu</span><b>ryll.id</b></div>
           </div>
-        </div>
+              </div>
+            </div>
+          </li>
+        </ol>
       </div>
     </section>
 
@@ -401,113 +422,162 @@
       </div>
     </section>
 
-    <div class="panels">
-      <!-- 01 · Pilih tema -->
-      <section class="panel" style="--bg: url('/art/bucin-era-front.webp')">
-        <div class="panel-head">
-          <h3>Pilih tema.</h3>
-          <span class="panel-num">01</span>
+    <!-- ═══════════ S5-ALT · Cara Main: deret editorial 01–04 ═══════════
+         Alternatif dari .panels di atas — empat baris dipisah hairline penuh,
+         judul raksasa, artwork kartu miring di ujung kanan tiap baris. -->
+    <div class="steps">
+      <article class="srow reveal">
+        <span class="srow-num">01</span>
+        <h3 class="srow-title">Pilih tema.</h3>
+        <div class="srow-body">
+          <p>Bucin, deep talk, atau toxic — lo yang tentuin seberapa jauh. Selalu mulai santai, naikin level kapan aja.</p>
+          <div class="srow-tags"><span>6 tema</span><i></i><span>3 level</span><i></i><span>(SI 👀)</span></div>
         </div>
-        <div class="panel-tags"><span>6 tema</span><span>3 level</span></div>
-        <p class="panel-desc">
-          Bucin, deep talk, atau toxic — lo yang tentuin seberapa jauh.
-          Selalu mulai santai, naikin level kapan aja.
-        </p>
-        <div class="panel-visual panel-fan">
-          <div class="fan-card" style="--fr: -8deg"><img src="/art/deep-talk-front-thumb.webp" alt="" loading="lazy" /></div>
-          <div class="fan-card" style="--fr: 0deg"><img src="/art/bucin-era-front-thumb.webp" alt="" loading="lazy" /></div>
-          <div class="fan-card" style="--fr: 8deg"><img src="/art/midnight-front-thumb.webp" alt="" loading="lazy" /></div>
+        <div class="srow-art" style="--r: -6deg">
+          <img src="/art/bucin-era-front-thumb.webp" alt="" loading="lazy" />
         </div>
-        <a class="btn-light" href="#">Gas Main</a>
-      </section>
+      </article>
 
-      <!-- 02 · Oper HP-nya -->
-      <section class="panel" style="--bg: url('/art/deep-talk-front.webp')">
-        <div class="panel-head">
-          <h3>Oper HP-nya.</h3>
-          <span class="panel-num">02</span>
+      <article class="srow reveal">
+        <span class="srow-num">02</span>
+        <h3 class="srow-title">Oper HP-nya.</h3>
+        <div class="srow-body">
+          <p>Satu HP buat semua. Roda yang milih siapa yang kena, punggung kartunya nunjukin nama — nggak bisa ngeles.</p>
+          <div class="srow-tags"><span>roda giliran</span><i></i><span>kantong nama, adil</span><i></i><span>(LO)</span></div>
         </div>
-        <div class="panel-tags"><span>roda giliran</span><span>kantong nama — adil</span></div>
-        <p class="panel-desc">
-          Satu HP buat semua. Roda yang milih siapa yang kena,
-          punggung kartunya nunjukin nama — nggak bisa ngeles.
-        </p>
-        <div class="panel-visual">
-          <div class="pcard" style="--pr: 5deg">
-            <div class="pcard-scale">
-              <div class="gcard gcard-back">
-                <div class="gcard-body">
-                  <img class="gcard-art" src="/art/deep-talk-back.webp" alt="" loading="lazy" />
-                  <div class="gcard-overlay">
-                    <span class="gcard-logo-word gcard-logo-sm">RYLL</span>
-                    <span class="giliran"><i>Giliran</i><b>SINTA</b></span>
-                    <span class="gcard-hint">Tap buat buka</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="srow-art" style="--r: 5deg">
+          <img src="/art/deep-talk-back-thumb.webp" alt="" loading="lazy" />
         </div>
-        <a class="btn-light" href="#">Gas Main</a>
-      </section>
+      </article>
 
-      <!-- 03 · Jawab jujur -->
-      <section class="panel panel-dark" style="--bg: url('/art/midnight-front.webp')">
-        <div class="panel-head">
-          <h3>Jawab jujur.</h3>
-          <span class="panel-num">03</span>
+      <article class="srow reveal">
+        <span class="srow-num">03</span>
+        <h3 class="srow-title">Jawab jujur.</h3>
+        <div class="srow-body">
+          <p>Tarik kartunya, baca keras-keras, jawab. Makin dalem levelnya, makin hening ruangannya.</p>
+          <div class="srow-tags"><span>nggak boleh ngeles</span><i></i><span>naikin level kapan aja</span><i></i><span>(JUJUR 👍)</span></div>
         </div>
-        <div class="panel-tags"><span>nggak boleh ngeles</span><span>naikin level kapan aja</span></div>
-        <p class="panel-desc">
-          Tarik kartunya, baca keras-keras, jawab.
-          Makin dalem levelnya, makin hening ruangannya.
-        </p>
-        <div class="panel-visual">
-          <div class="pcard" style="--pr: -4deg">
-            <div class="pcard-scale">
-              <div class="gcard gcard-front">
-                <div class="gcard-body">
-                  <img class="gcard-art" src="/art/midnight-front.webp" alt="" loading="lazy" />
-                  <div class="gcard-overlay">
-                    <span class="gcard-logo-word gcard-logo-sm">RYLL</span>
-                    <p class="gcard-q">Kapan terakhir lo ketawa buat nutupin sesuatu?</p>
-                    <span class="gcard-pill">Midnight</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="srow-art" style="--r: -4deg">
+          <img src="/art/midnight-front-thumb.webp" alt="" loading="lazy" />
         </div>
-        <a class="btn-light" href="#">Gas Main</a>
-      </section>
+      </article>
 
-      <!-- 04 · Sebarin hasilnya -->
-      <section class="panel" style="--bg: url('/art/career-mode-front.webp')">
-        <div class="panel-head">
-          <h3>Sebarin hasilnya.</h3>
-          <span class="panel-num">04</span>
+      <article class="srow reveal">
+        <span class="srow-num">04</span>
+        <h3 class="srow-title">Sebarin hasilnya.</h3>
+        <div class="srow-body">
+          <p>Tiap sesi ditutup satu vonis. Screenshot, lempar ke grup — dan minggu depan gantian yang lain jadi tuan rumah.</p>
+          <div class="srow-tags"><span>satu layar, tanpa scroll</span><i></i><span>ryll.id</span><i></i><span>(RYLL)</span></div>
         </div>
-        <div class="panel-tags"><span>satu layar, tanpa scroll</span><span>ryll.id</span></div>
-        <p class="panel-desc">
-          Tiap sesi ditutup satu vonis. Screenshot, lempar
-          ke grup — dan minggu depan gantian yang lain jadi tuan rumah.
-        </p>
-        <div class="panel-visual">
-          <div class="phone phone-panel" aria-hidden="true">
-            <div class="phone-screen">
-              <span class="ph-kicker">Jawaban paling ngagetin</span>
-              <span class="ph-name">BAGAS</span>
-              <div class="ph-rows">
-                <div class="ph-row"><span>Paling banyak ngeles</span><b>Rina</b></div>
-                <div class="ph-row"><span>Paling jujur</span><b>Dimas</b></div>
-              </div>
-              <div class="ph-foot"><span>Bucin Era · 14 kartu</span><b>ryll.id</b></div>
-            </div>
-          </div>
+        <div class="srow-art" style="--r: 6deg">
+          <img src="/art/career-mode-front-thumb.webp" alt="" loading="lazy" />
         </div>
-        <a class="btn-light" href="#">Gas Main</a>
-      </section>
+      </article>
     </div>
+
+    <div class="steps-cta">
+      <a class="btn-primary" href="https://ryll-app.vercel.app/" target="_blank" rel="noopener">Gas Main</a>
+      <small>Nggak ada tutorial. Nggak ada setup.</small>
+    </div>
+
+    <!-- ═══════════ S6 · FAQ: split intro + accordion hairline ═══════════ -->
+    <section class="split-intro" id="faq">
+      <div class="rail">
+        <span class="bento-cap rail-label"><i class="cap-dot"></i>FAQ</span>
+      </div>
+      <div class="split-main">
+        <h2 class="display">
+          <span class="hl-ink reveal">Yang biasa ditanyain.</span><br />
+          <span class="hl-muted reveal">Dijawab jujur.</span>
+        </h2>
+      </div>
+    </section>
+
+    <div class="faq">
+      <div class="faq-item">
+        <button class="faq-q" id="faq-1-btn" aria-expanded="false" aria-controls="faq-1">
+          Berapa orang idealnya?
+          <span class="faq-plus" aria-hidden="true"><i></i><i></i></span>
+        </button>
+        <div class="faq-a" id="faq-1" role="region" aria-labelledby="faq-1-btn">
+          <p>3–10 paling seru. Berdua juga bisa — mulai aja dari level Personal, jangan langsung Deep.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" id="faq-2-btn" aria-expanded="false" aria-controls="faq-2">
+          Harus install dulu?
+          <span class="faq-plus" aria-hidden="true"><i></i><i></i></span>
+        </button>
+        <div class="faq-a" id="faq-2" role="region" aria-labelledby="faq-2-btn">
+          <p>Nggak. Buka link, langsung main. Kalau sering dipakai bisa di-install biar nongkrong di home screen — tapi itu opsional.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" id="faq-3-btn" aria-expanded="false" aria-controls="faq-3">
+          Bayar nggak?
+          <span class="faq-plus" aria-hidden="true"><i></i><i></i></span>
+        </button>
+        <div class="faq-a" id="faq-3" role="region" aria-labelledby="faq-3-btn">
+          <p>Gratis. Semua tema, semua level.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" id="faq-4-btn" aria-expanded="false" aria-controls="faq-4">
+          Data gue ke mana?
+          <span class="faq-plus" aria-hidden="true"><i></i><i></i></span>
+        </button>
+        <div class="faq-a" id="faq-4" role="region" aria-labelledby="faq-4-btn">
+          <p>Main sebagai tamu: semuanya cuma nyimpen di HP lo. Nama pemain nggak pernah dikirim ke server — jadi jawaban lo juga nggak ke mana-mana.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" id="faq-5-btn" aria-expanded="false" aria-controls="faq-5">
+          18+ itu isinya apa?
+          <span class="faq-plus" aria-hidden="true"><i></i><i></i></span>
+        </button>
+        <div class="faq-a" id="faq-5" role="region" aria-labelledby="faq-5-btn">
+          <p>Ya, yang itu. Ada konfirmasi umur dulu sebelum kebuka, dan tema ini nggak akan muncul kalau nggak lo pilih sendiri — biar nggak ada yang kaget pas main sama keluarga.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ S7 · Footer: container gelap + wordmark raksasa + dot halftone ═══════════ -->
+    <footer class="foot">
+      <div class="foot-box">
+        <div class="foot-top">
+          <div class="foot-brand">
+            <span class="logomark">
+              <span class="logomark-tile"></span>
+              <img src="/art/logo-ghost.svg" alt="" />
+            </span>
+            <span class="foot-word">RYLL</span>
+          </div>
+
+          <div class="foot-side">
+            <a class="btn-inverse" href="https://ryll-app.vercel.app/" target="_blank" rel="noopener">Gas Main</a>
+            <nav class="foot-links">
+              <a href="#">Instagram</a>
+              <a href="#">Privasi</a>
+              <a href="#">Kontak</a>
+            </nav>
+          </div>
+        </div>
+
+        <div class="foot-legal">
+          <span>©2026 RYLL</span>
+          <span class="foot-domain">ryll.id</span>
+        </div>
+
+        <!-- pola dot halftone: rapat di dasar, memudar ke atas -->
+        <div class="foot-dots" aria-hidden="true"></div>
+        <!-- siluet ghost dibentuk dari dot yang sama, cuma lebih terang -->
+        <div class="foot-ghost" aria-hidden="true"></div>
+      </div>
+    </footer>
 
     <script type="module" src="/src/main.js"></script>
   </body>
