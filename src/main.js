@@ -2,12 +2,48 @@ import './style.css'
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+/* ═══════════ Kartu pusat hero: skala diturunkan dari radius ring ═══════════ */
+
+// Rasio kartu-pusat : radius-ring dihitung DI SINI, bukan di CSS. CSS tak bisa
+// membagi length dengan length, dan satu-satunya trik untuk itu — tan(atan2(a,b))
+// — RUSAK di Safari: WebKit mengabaikan argumen keduanya, jadi --center-scale
+// jadi invalid, width jatuh ke auto dan scale ke none, dan kartu membesar jadi
+// 343×450 sampai menelan seluruh ring. Chrome menghitungnya benar, makanya bug
+// ini cuma muncul di iPhone.
+//
+// --ring-r dibaca dengan MENGUKUR elemen probe, bukan lewat getComputedStyle:
+// untuk custom property yang belum diregistrasi, getComputedStyle mengembalikan
+// teks rumusnya ("clamp(118px, min(36vw, 24vh), 170px)"), bukan hasil px-nya.
+const ringProbe = document.getElementById('ring-probe')
+const CARD_W = 343 // lebar kartu asli, harus sama dengan .flip-scaler di CSS
+
+function syncCenterScale() {
+  if (!ringProbe) return
+  const r = ringProbe.getBoundingClientRect().width
+  if (!r) return // CSS belum terpasang — --ring-r belum ada, probe masih 0
+  const ratio =
+    parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--center-ratio')) || 0.7
+  document.documentElement.style.setProperty('--center-scale', ((r * ratio) / CARD_W).toFixed(4))
+}
+
+// Dipanggil BERKALI-KALI dengan sengaja. Vite menaruh <script type="module">
+// di ATAS <link rel="stylesheet">, dan sebuah skrip hanya menunggu stylesheet
+// yang berada sebelum dirinya — jadi modul ini bisa jalan sebelum CSS terpasang.
+// Kalau cuma dipanggil sekali di sini, probe masih 0, hitungan dilewati, dan
+// kartu terkunci di angka cadangan (kekecilan di desktop). 'load' menjamin CSS
+// sudah masuk; finishLoad menutup celah terakhir sebelum konten ditampilkan.
+syncCenterScale()
+window.addEventListener('load', syncCenterScale)
+window.addEventListener('resize', syncCenterScale, { passive: true })
+window.addEventListener('orientationchange', syncCenterScale)
+
 /* ═══════════ Preloader: counter 0→100 lalu reveal ═══════════ */
 
 const count = document.getElementById('preloader-count')
 const DURATION = reduceMotion ? 0 : 1100
 
 function finishLoad() {
+  syncCenterScale() // kesempatan terakhir sebelum kartu jadi terlihat
   document.documentElement.classList.add('loaded')
 }
 

@@ -61,12 +61,16 @@
        kali radius ring berubah proporsinya lepas dan kartu tengah kelihatan
        kegedean. Sekarang lebarnya selalu 0.70 × radius ring (≈1.5× kartu mini).
 
-       tan(atan2(a, b)) = a/b — satu-satunya cara bikin RASIO TANPA SATUAN dari
-       dua panjang di CSS. calc(--ring-r * .70 / 343) nggak bisa: hasilnya tetap
-       px, dan `scale:` yang dikasih px itu invalid → kartunya balik ke 343×450
-       alias jadi raksasa. */
+       Rasionya DIHITUNG DI JS (syncCenterScale), bukan di CSS. CSS nggak bisa
+       bagi length dengan length, dan trik tan(atan2(a,b)) = a/b RUSAK di Safari:
+       WebKit mengabaikan argumen keduanya, jadi --center-scale invalid → width
+       jatuh ke auto + scale ke none → kartu balik ke 343×450 alias raksasa yang
+       nelen seluruh ring. Terbukti di iPhone, tak pernah muncul di Chrome.
+
+       Angka di bawah cuma cadangan kalau JS mati; ditutupi preloader jadi tak
+       pernah kelihatan. JS menimpanya di :root sebelum halaman tampil. */
     --center-ratio: 0.70;
-    --center-scale: tan(atan2(calc(var(--ring-r) * var(--center-ratio)), 343px));
+    --center-scale: 0.32;
   }
 
   * {
@@ -401,6 +405,22 @@ html.menu-open .menu-rule {
   overflow: clip;
 }
 
+/* Probe buat baca --ring-r dalam px dari JS. getComputedStyle pada custom
+   property yang belum diregistrasi mengembalikan token mentah ("clamp(118px,
+   min(36vw, 24vh), 170px)"), bukan hasil hitungnya — jadi satu-satunya cara
+   yang pasti di semua engine adalah mengukur elemen sungguhan. Sengaja di
+   .hero, BUKAN di .ring-scroll: ring itu dirotasi saat scroll, dan rect
+   elemen yang ikut terotasi lebarnya menyusut sebesar cos(sudut). */
+.ring-probe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--ring-r);
+  height: 0;
+  visibility: hidden; /* jangan display:none — itu bikin rect-nya 0 */
+  pointer-events: none;
+}
+
 /* -- ring kartu -- */
 
 .ring-scroll {
@@ -510,9 +530,27 @@ html.loaded .center-card {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* backface-visibility saja TIDAK cukup: di WebKit muka depan yang sudah
+     diputar 180° tetap ikut dilukis, dan karena ia belakangan di DOM ia
+     menimpa muka belakang — hasilnya kartu terbaca TERBALIK CERMIN. Mulus di
+     Chrome, rusak di Safari/iOS. Jadi sisi yang membelakangi disembunyikan
+     eksplisit; pertukaran ditunda 280ms = separuh durasi flip, tepat saat
+     kartu tegak lurus ke kita, jadi peralihannya tak kelihatan. */
+  visibility: hidden;
+  transition: visibility 0s linear 280ms;
+}
+.face-back {
+  visibility: visible;
 }
 .face-front {
   transform: rotateY(180deg);
+}
+.flip-inner.flipped .face-back {
+  visibility: hidden;
+}
+.flip-inner.flipped .face-front {
+  visibility: visible;
 }
 
 /* GameCard vanilla: angka-angka persis dari GameCard.tsx */
