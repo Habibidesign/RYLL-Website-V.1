@@ -1,270 +1,319 @@
 import './style.css'
 
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+/* Aplikasi RYLL (PWA). Semua tombol "Gas Main", "Masuk" dan "Main <tema> →"
+   mengarah ke sini. Ganti di satu tempat ini kalau domain app pindah. */
+const APP_URL = 'https://ryll-app.vercel.app'
 
-/* ═══════════ Kartu pusat hero: skala diturunkan dari radius ring ═══════════ */
-
-// Rasio kartu-pusat : radius-ring dihitung DI SINI, bukan di CSS. CSS tak bisa
-// membagi length dengan length, dan satu-satunya trik untuk itu — tan(atan2(a,b))
-// — RUSAK di Safari: WebKit mengabaikan argumen keduanya, jadi --center-scale
-// jadi invalid, width jatuh ke auto dan scale ke none, dan kartu membesar jadi
-// 343×450 sampai menelan seluruh ring. Chrome menghitungnya benar, makanya bug
-// ini cuma muncul di iPhone.
-//
-// --ring-r dibaca dengan MENGUKUR elemen probe, bukan lewat getComputedStyle:
-// untuk custom property yang belum diregistrasi, getComputedStyle mengembalikan
-// teks rumusnya ("clamp(118px, min(36vw, 24vh), 170px)"), bukan hasil px-nya.
-const ringProbe = document.getElementById('ring-probe')
-const CARD_W = 343 // lebar kartu asli, harus sama dengan .flip-scaler di CSS
-
-function syncCenterScale() {
-  if (!ringProbe) return
-  const r = ringProbe.getBoundingClientRect().width
-  if (!r) return // CSS belum terpasang — --ring-r belum ada, probe masih 0
-  const ratio =
-    parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--center-ratio')) || 0.7
-  document.documentElement.style.setProperty('--center-scale', ((r * ratio) / CARD_W).toFixed(4))
+const DECK = {
+  'deep-talk': { nama: 'Deep Talk', warna: '#e8685c' },
+  'bucin-era': { nama: 'Bucin Era', warna: '#e07aa8' },
+  'career-mode': { nama: 'Career Mode', warna: '#6fa8e0' },
+  'toxic-traits': { nama: 'Toxic Traits', warna: '#6fe0b8' },
+  midnight: { nama: 'Midnight', warna: '#2ee6c0', kunci: 'level' },
+  uncensored: { nama: '18+ Uncensored', warna: '#ff4d5e', kunci: 'segera' },
 }
 
-// Dipanggil BERKALI-KALI dengan sengaja. Vite menaruh <script type="module">
-// di ATAS <link rel="stylesheet">, dan sebuah skrip hanya menunggu stylesheet
-// yang berada sebelum dirinya — jadi modul ini bisa jalan sebelum CSS terpasang.
-// Kalau cuma dipanggil sekali di sini, probe masih 0, hitungan dilewati, dan
-// kartu terkunci di angka cadangan (kekecilan di desktop). 'load' menjamin CSS
-// sudah masuk; finishLoad menutup celah terakhir sebelum konten ditampilkan.
-syncCenterScale()
-window.addEventListener('load', syncCenterScale)
-window.addEventListener('resize', syncCenterScale, { passive: true })
-window.addEventListener('orientationchange', syncCenterScale)
-
-/* ═══════════ Preloader: counter 0→100 lalu reveal ═══════════ */
-
-const count = document.getElementById('preloader-count')
-const DURATION = reduceMotion ? 0 : 1100
-
-function finishLoad() {
-  syncCenterScale() // kesempatan terakhir sebelum kartu jadi terlihat
-  document.documentElement.classList.add('loaded')
+/* Pertanyaan asli dari bank kartu di app (Ryll New UI/src/data/cards.ts). */
+const TANYA = {
+  'bucin-era': [
+    'Tipe orang kayak gimana yang bikin lo langsung salting?',
+    'Lo tim nembak duluan atau nunggu dikode?',
+    'Mantan lo masih ada di kontak nggak?',
+    'First date ideal versi lo di mana?',
+    'Kalau doi telat bales, lo overthinking berapa lama?',
+    'Lo lebih suka dikasih kejutan atau ditanya dulu maunya apa?',
+  ],
+  'deep-talk': [
+    'Lo lebih takut dilupain atau nggak pernah dikenal?',
+    'Apa hal kecil yang bisa bikin hari lo berubah total?',
+    'Apa yang orang salah paham soal lo?',
+    'Tempat mana yang bikin lo ngerasa paling aman?',
+    'Kalau punya waktu sebulan tanpa tanggung jawab, lo ngapain?',
+    'Lo lebih milih tau masa depan atau bisa ngubah masa lalu?',
+  ],
+  'career-mode': [
+    'Kalau nggak mikirin uang, lo mau kerja apa?',
+    'Alasan resign paling jujur yang nggak pernah lo tulis?',
+    'Lo tipe yang kerja pagi atau tengah malam?',
+    'Kalau bisa milih bos: galak tapi jelas, atau baik tapi ngambang?',
+    'Impian karier lo waktu SMA apa?',
+    'Apa yang lo lakuin pas nggak produktif tapi harus keliatan sibuk?',
+  ],
+  'toxic-traits': [
+    'Kebiasaan lo yang paling bikin temen kesel apa?',
+    'Siapa di sini yang paling sering ngilang pas ditagih?',
+    'Kebiasaan lo di grup chat yang bikin orang males?',
+    'Lo tipe yang mimpin atau yang ngeluh doang?',
+    'Hal apa yang bikin lo langsung ilfeel sama orang?',
+    'Ngaku: lo pernah nggak ngerjain bagian lo di tugas kelompok?',
+  ],
+  midnight: [
+    'Pikiran random apa yang sering muncul jam 3 pagi?',
+    'Mimpi paling aneh yang lo inget sampai sekarang?',
+    'Apa yang lo pikirin persis sebelum tidur semalem?',
+    'Lagu apa yang cocok banget didengerin jam 2 pagi?',
+    'Lo pernah jalan sendirian tengah malam? Ke mana?',
+    'Kalau tiba-tiba melek jam 4 pagi, lo ngapain?',
+  ],
+  // Belum rilis: teksnya diburamkan, jadi cuma pengisi bentuk.
+  uncensored: [
+    'Kartu ini masih disegel sampai temanya rilis.',
+    'Isinya nunggu kebuka bareng temen.',
+    'Khusus yang udah 18 tahun ke atas.',
+  ],
 }
 
-if (DURATION === 0) {
-  finishLoad()
-} else {
-  const t0 = performance.now()
-  function tick(t) {
-    const p = Math.min(1, (t - t0) / DURATION)
-    // ease-out biar angkanya "ngerem" di ujung, kayak fourmula
-    const eased = 1 - Math.pow(1 - p, 3)
-    count.textContent = Math.round(eased * 100)
-    if (p < 1) requestAnimationFrame(tick)
-    else finishLoad()
+const app = (path = '/') => APP_URL + path
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+
+const LOGO = (lm) =>
+  `<span class="logomark" style="--lm:${lm}"><span class="logomark-tile"></span><img src="/art/logo-ghost.svg" alt="" /></span>`
+
+/** Kartu depan RYLL. `kunci` = abu-abu + pertanyaan buram. */
+function kartu(deck, q, { kunci = false, tagKunci = false, cta = false } = {}) {
+  const d = DECK[deck]
+  return `<div class="rcard${kunci ? ' is-locked' : ''}"><div class="rcard-in">
+    <div class="rcard-art">
+      <img class="bg" src="/art/${deck}-front-thumb.webp" alt="" loading="lazy" decoding="async" />
+      <span class="rcard-logo">${LOGO('9cqw')}RYLL</span>
+      <p class="rcard-q">${esc(q)}</p>
+      <span class="rcard-pill">${d.nama}</span>
+      ${cta ? `<span class="rcard-cta">Main ${d.nama} →</span>` : ''}
+      ${tagKunci ? '<span class="lock-tag">Kebuka di level Deep</span>' : ''}
+    </div>
+  </div></div>`
+}
+
+/** Punggung kartu: giliran siapa. */
+function punggung(deck, nama) {
+  return `<div class="rcard"><div class="rcard-in">
+    <div class="rcard-art">
+      <img class="bg" src="/art/${deck}-back-thumb.webp" alt="" loading="lazy" decoding="async" />
+      <span class="rcard-logo">${LOGO('9cqw')}RYLL</span>
+      <span class="rcard-mid"><span class="rcard-label">Giliran</span><span class="rcard-name">${esc(nama)}</span></span>
+      <span class="rcard-tap">Tap buat buka</span>
+    </div>
+  </div></div>`
+}
+
+/* ═══════════ Kartu di gambar Cara main ═══════════ */
+
+document.querySelectorAll('.v-card').forEach((el) => {
+  if (el.dataset.back) el.innerHTML = punggung(el.dataset.back, el.dataset.name)
+  else el.innerHTML = kartu(el.dataset.card, el.dataset.q || '')
+})
+
+/* ═══════════ Hero: deretan kartu di tepi bawah ═══════════ */
+
+const HERO = [
+  ['bucin-era', 'Tipe orang kayak gimana yang bikin lo langsung salting?', 251],
+  ['career-mode', 'Kalau nggak mikirin uang, lo mau kerja apa?', 263],
+  ['toxic-traits', 'Kebiasaan lo yang paling bikin temen kesel apa?', 239],
+  ['midnight', 'Pikiran random apa yang sering muncul jam 3 pagi?', 251],
+  ['bucin-era', 'Lo tim nembak duluan atau nunggu dikode?', 239],
+  ['midnight', 'Pikiran random apa yang sering muncul jam 3 pagi?', 251],
+]
+document.getElementById('hero-cards').innerHTML = HERO.map(
+  ([d, q, w]) =>
+    `<a class="hc" style="--w:${w}px" href="${app('/deck/' + d)}" tabindex="-1">
+      <span class="hc-cta">Main ${DECK[d].nama} →</span>${kartu(d, q)}
+    </a>`,
+).join('')
+
+/* ═══════════ Tema: marquee + filter ═══════════ */
+
+const ORDER = ['semua', 'deep-talk', 'bucin-era', 'career-mode', 'toxic-traits', 'midnight', 'uncensored']
+const CAMPUR_1 = ['bucin-era', 'deep-talk', 'career-mode', 'toxic-traits', 'bucin-era', 'deep-talk', 'midnight', 'career-mode']
+const CAMPUR_2 = ['toxic-traits', 'career-mode', 'deep-talk', 'midnight', 'bucin-era', 'toxic-traits', 'deep-talk', 'career-mode']
+
+const track1 = document.getElementById('track-1')
+const track2 = document.getElementById('track-2')
+const marquee = document.getElementById('marquee')
+const glow = document.getElementById('marquee-glow')
+const lockPanel = document.getElementById('lock-panel')
+
+function baris(decks, offset, terkunci) {
+  const pakai = {}
+  const set = decks
+    .map((d) => {
+      const i = (pakai[d] = (pakai[d] ?? offset) + 1) - 1
+      const q = TANYA[d][i % TANYA[d].length]
+      const kunci = terkunci || !!DECK[d].kunci
+      const isi = kartu(d, q, { kunci, tagKunci: kunci && !terkunci, cta: !kunci })
+      return kunci
+        ? `<div class="mc is-locked">${isi}</div>`
+        : `<a class="mc" href="${app('/deck/' + d)}" tabindex="-1">${isi}</a>`
+    })
+    .join('')
+  // dua salinan berdampingan: animasi geser -50% jadi putaran tanpa sambungan
+  return set + set.replace(/<a class="mc"/g, '<a class="mc" aria-hidden="true"')
+}
+
+function tampilTema(id) {
+  const semua = id === 'semua'
+  const d = DECK[id]
+  const terkunci = !!d?.kunci
+  const isi1 = semua ? CAMPUR_1 : Array(8).fill(id)
+  const isi2 = semua ? CAMPUR_2 : Array(8).fill(id)
+  track1.innerHTML = baris(isi1, 0, terkunci)
+  track2.innerHTML = baris(isi2, 3, terkunci)
+  marquee.classList.toggle('locked', terkunci)
+  glow.style.setProperty('--glow', semua ? 'transparent' : d.warna)
+  glow.style.setProperty('--glow-op', semua ? 0 : terkunci ? 0.08 : 0.22)
+
+  lockPanel.hidden = !terkunci
+  if (terkunci) {
+    const level = d.kunci === 'level'
+    document.getElementById('lock-title').textContent = level ? 'Midnight masih kekunci' : '18+ Uncensored segera hadir'
+    document.getElementById('lock-text').textContent = level
+      ? 'Selesaiin satu sesi sampai level Deep. Temanya kebuka sendiri, gratis.'
+      : 'Khusus yang udah 18 tahun ke atas. Isinya lagi kami siapin.'
+    const cta = document.getElementById('lock-cta')
+    cta.textContent = level ? 'Gas Main sekarang' : 'Kabarin gue lewat Google'
+    cta.href = level ? app('/') : app('/masuk')
+    document.getElementById('lock-note').textContent = level
+      ? ''
+      : 'Email akun Google lo cuma dipakai buat ngabarin pas temanya rilis.'
   }
-  requestAnimationFrame(tick)
+
+  // kecepatan tetap per kartu, bukan per baris: baris panjang tidak jadi ngebut
+  for (const t of [track1, track2]) {
+    requestAnimationFrame(() => t.style.setProperty('--dur', `${t.scrollWidth / 2 / 28}s`))
+  }
+
+  // sinkronkan tab, pill pemilih, dan sheet
+  document.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.id === id)))
+  document.querySelectorAll('.opt').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.id === id)))
+  document.getElementById('picker-label').textContent = semua ? 'Semua' : d.nama
 }
 
-/* ═══════════ Scroll: % di nav pill + parallax ring/headline ═══════════ */
+const LOCK_SVG =
+  '<svg class="opt-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
+const CHECK_SVG =
+  '<svg class="opt-ic opt-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>'
 
-const progressEl = document.getElementById('scroll-progress')
-const ringScroll = document.getElementById('ring-scroll')
-const headline = document.querySelector('.hero-headline')
+document.getElementById('tabs').innerHTML = ORDER.map((id) => {
+  const d = DECK[id]
+  const kunci = !!d?.kunci
+  return `<button class="tab${kunci ? ' locked' : ''}" type="button" role="tab" data-id="${id}" aria-selected="false">${
+    kunci ? LOCK_SVG.replace('opt-ic', 'tab-ic').replace('<svg ', '<svg width="14" height="14" ') : ''
+  }${id === 'semua' ? 'Semua' : d.nama}</button>`
+}).join('')
 
-let rafPending = false
-function onScroll() {
-  if (rafPending) return
-  rafPending = true
-  requestAnimationFrame(() => {
-    rafPending = false
-    const max = document.documentElement.scrollHeight - window.innerHeight
-    const pct = max > 0 ? Math.round((window.scrollY / max) * 100) : 0
-    progressEl.textContent = `${Math.min(100, Math.max(0, pct))}%`
+document.getElementById('sheet-list').innerHTML = ORDER.map((id) => {
+  const d = DECK[id]
+  const kunci = !!d?.kunci
+  const sub = id === 'semua' ? 'Campuran semua tema' : kunci ? (d.kunci === 'level' ? 'Kebuka di level Deep' : 'Segera hadir') : '48 kartu'
+  const warna = id === 'semua' ? 'linear-gradient(90deg,#e07aa8,#e3963a,#6fa8e0)' : d.warna
+  return `<button class="opt${kunci ? ' locked' : ''}" type="button" role="menuitemradio" data-id="${id}" aria-checked="false">
+    <i class="opt-dot" style="--c:${warna}"></i>
+    <span class="opt-txt"><b>${id === 'semua' ? 'Semua' : d.nama}</b><small>${sub}</small></span>
+    ${kunci ? LOCK_SVG : ''}${CHECK_SVG}
+  </button>`
+}).join('')
+// centang cuma di opsi terpilih
+const styleCheck = document.createElement('style')
+styleCheck.textContent = `.opt-check{display:none}.opt[aria-checked="true"] .opt-check{display:block}`
+document.head.appendChild(styleCheck)
 
-    if (!reduceMotion) {
-      const y = window.scrollY
-      // ring: naik + berputar pelan mengikuti scroll (quote roda giliran)
-      ringScroll.style.setProperty('--sy', `${y * -0.28}px`)
-      ringScroll.style.setProperty('--sr', `${y * 0.035}deg`)
-      // headline: parallax lebih lambat dari konten
-      headline.style.setProperty('--hp', `${y * -0.12}px`)
+document.getElementById('tabs').addEventListener('click', (e) => {
+  const b = e.target.closest('.tab')
+  if (b) tampilTema(b.dataset.id)
+})
+
+/* Sheet pilih tema (mobile & tablet) */
+const picker = document.getElementById('picker')
+const sheet = document.getElementById('sheet')
+const sheetScrim = document.getElementById('sheet-scrim')
+function sheetBuka(buka) {
+  sheet.hidden = !buka
+  sheetScrim.hidden = !buka
+  picker.setAttribute('aria-expanded', String(buka))
+  document.body.style.overflow = buka ? 'hidden' : ''
+  if (buka) sheet.querySelector('[aria-checked="true"]')?.focus()
+  else picker.focus()
+}
+picker.addEventListener('click', () => sheetBuka(true))
+sheetScrim.addEventListener('click', () => sheetBuka(false))
+document.getElementById('sheet-list').addEventListener('click', (e) => {
+  const b = e.target.closest('.opt')
+  if (!b) return
+  tampilTema(b.dataset.id)
+  sheetBuka(false)
+})
+
+tampilTema('semua')
+
+/* ═══════════ FAQ: satu terbuka dalam satu waktu ═══════════ */
+
+const qas = [...document.querySelectorAll('.qa')]
+qas.forEach((qa) =>
+  qa.querySelector('button').addEventListener('click', () => {
+    const buka = !qa.classList.contains('open')
+    qas.forEach((x) => {
+      x.classList.remove('open')
+      x.querySelector('button').setAttribute('aria-expanded', 'false')
+    })
+    if (buka) {
+      qa.classList.add('open')
+      qa.querySelector('button').setAttribute('aria-expanded', 'true')
     }
+  }),
+)
 
-    // numpang rAF yang sama — nggak perlu listener scroll kedua
-    updateHow()
-  })
+/* ═══════════ Nav: progres scroll, lewat hero, menu ═══════════ */
+
+const nav = document.getElementById('nav')
+const pct = document.getElementById('scroll-pct')
+const hero = document.querySelector('.hero')
+function onScroll() {
+  const max = document.documentElement.scrollHeight - innerHeight
+  pct.textContent = `${Math.round(max > 0 ? (scrollY / max) * 100 : 0)}%`
+  nav.classList.toggle('scrolled', scrollY > hero.offsetHeight - 120)
 }
-window.addEventListener('scroll', onScroll, { passive: true })
-window.addEventListener('resize', onScroll, { passive: true })
+addEventListener('scroll', onScroll, { passive: true })
 onScroll()
 
-/* ═══════════ S3 · Rel langkah: garis keisi + nomor aktif (pola Apex) ═══════════ */
-
-// Garis vertikal di antara nomor keisi seiring scroll, dan nomor yang udah
-// dilewati garis aktivasi jadi solid. Dihitung dari geometri asli tiap frame
-// (bukan disimpan) supaya tetap benar setelah resize atau font baru kepasang.
-const howSteps = [...document.querySelectorAll('.how-step')]
-const howFill = document.getElementById('how-fill')
-const howLine = document.querySelector('.how-line')
-
-const howStepsEl = document.getElementById('how-steps')
-
-function updateHow() {
-  if (!howFill || !howSteps.length) return
-
-  // garis membentang dari PUSAT lingkaran pertama ke pusat lingkaran terakhir
-  const box = howStepsEl.getBoundingClientRect()
-  const first = howSteps[0].querySelector('.how-num').getBoundingClientRect()
-  const last = howSteps[howSteps.length - 1].querySelector('.how-num').getBoundingClientRect()
-  const top = first.top - box.top + first.height / 2
-  howLine.style.top = `${top}px`
-  howLine.style.height = `${last.top - box.top + last.height / 2 - top}px`
-
-  const lineBox = howLine.getBoundingClientRect()
-  // garis aktivasi di 55% tinggi layar — sedikit di bawah tengah, biar nomor
-  // menyala tepat saat blok-nya kebaca, bukan pas baru nongol di bawah
-  const trigger = window.innerHeight * 0.55
-  const filled = Math.min(Math.max(trigger - lineBox.top, 0), lineBox.height)
-  howFill.style.height = `${filled}px`
-
-  for (const step of howSteps) {
-    const num = step.querySelector('.how-num').getBoundingClientRect()
-    step.classList.toggle('on', num.top + num.height / 2 <= trigger)
-  }
+const menuBtn = document.getElementById('menu-btn')
+const menu = document.getElementById('menu')
+const menuScrim = document.getElementById('menu-scrim')
+const menuLabel = menuBtn.querySelector('.nav-pill-label')
+function menuBuka(buka) {
+  menu.hidden = !buka
+  menuScrim.hidden = !buka
+  menuBtn.setAttribute('aria-expanded', String(buka))
+  menuLabel.textContent = buka ? menuLabel.dataset.open : menuLabel.dataset.closed
 }
+menuBtn.addEventListener('click', () => menuBuka(menu.hidden))
+menuScrim.addEventListener('click', () => menuBuka(false))
+menu.addEventListener('click', (e) => {
+  if (e.target.closest('a')) menuBuka(false)
+})
+addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return
+  if (!menu.hidden) menuBuka(false)
+  if (!sheet.hidden) sheetBuka(false)
+})
 
-/* ═══════════ Menu panel: pill nav → panel turun (pola fourmula) ═══════════ */
+/* ═══════════ Kurangi gerak ═══════════ */
 
-const menuToggle = document.getElementById('menu-toggle')
-const menuPanel = document.getElementById('menu-panel')
-const menuOverlay = document.getElementById('menu-overlay')
-
-function setMenu(open) {
-  document.documentElement.classList.toggle('menu-open', open)
-  menuToggle.setAttribute('aria-expanded', String(open))
-  menuPanel.setAttribute('aria-hidden', String(!open))
-  menuToggle.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu')
-  // kunci scroll selama panel terbuka
-  document.body.style.overflow = open ? 'hidden' : ''
+const motion = document.getElementById('motion-toggle')
+const KEY = 'ryll-diam'
+function setDiam(on) {
+  document.documentElement.classList.toggle('diam', on)
+  motion.setAttribute('aria-pressed', String(on))
+  try {
+    localStorage.setItem(KEY, on ? '1' : '0')
+  } catch {}
 }
+let awalDiam = matchMedia('(prefers-reduced-motion: reduce)').matches
+try {
+  const s = localStorage.getItem(KEY)
+  if (s !== null) awalDiam = s === '1'
+} catch {}
+setDiam(awalDiam)
+motion.addEventListener('click', () => setDiam(!document.documentElement.classList.contains('diam')))
 
-menuToggle.addEventListener('click', () => {
-  setMenu(!document.documentElement.classList.contains('menu-open'))
-})
-menuOverlay.addEventListener('click', () => setMenu(false))
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') setMenu(false)
-})
-// klik link → tutup dulu, biar scroll ke anchor-nya kelihatan.
-// Teks tiap link digandakan jadi dua lapis untuk efek roll saat hover
-// (gerakan yang sama dengan transisi "Menu" → "Close").
-menuPanel.querySelectorAll('.menu-link').forEach((a) => {
-  a.addEventListener('click', () => setMenu(false))
-  const t = a.textContent.trim()
-  a.innerHTML = `<span class="roll"><span class="roll-line">${t}</span><span class="roll-line" aria-hidden="true">${t}</span></span>`
-})
+/* ═══════════ Tautan ke app ═══════════ */
 
-/* ═══════════ Kartu pusat: tap → flip → pertanyaan berikutnya ═══════════ */
-
-// Teaser dikurasi dari bank kartu (src/data/cards.ts di PWA) — yang aman di publik.
-const TEASERS = [
-  { deck: 'bucin-era', label: 'Bucin Era', q: 'Sebutin satu red flag yang lo maafin gara-gara cakep.' },
-  { deck: 'deep-talk', label: 'Deep Talk', q: 'Lo lebih takut dilupain atau nggak pernah dikenal?' },
-  { deck: 'toxic-traits', label: 'Toxic Traits', q: 'Lo paling sering bohong soal apa? "Otw" nggak dihitung.' },
-  { deck: 'career-mode', label: 'Career Mode', q: 'Sebutin satu skill di CV lo yang setengah bohong.' },
-  { deck: 'deep-talk', label: 'Deep Talk', q: 'Versi lo yang umur 10 tahun bakal bangga nggak sama lo sekarang?' },
-  { deck: 'toxic-traits', label: 'Toxic Traits', q: 'Red flag lo yang paling kelihatan apa?' },
-]
-
-const flipBtn = document.getElementById('flip-btn')
-const flipInner = document.getElementById('flip-inner')
-const frontArt = document.getElementById('front-art')
-const frontQ = document.getElementById('front-q')
-const frontLabel = document.getElementById('front-label')
-const backArt = document.getElementById('back-art')
-
-let idx = 0
-let showingFront = false
-
-function setFront(teaser) {
-  frontArt.src = `/art/${teaser.deck}-front.webp`
-  frontQ.textContent = teaser.q
-  frontLabel.textContent = teaser.label
-}
-
-// pre-set kartu pertama + preload artwork berikutnya
-setFront(TEASERS[0])
-TEASERS.forEach((t) => {
-  const img = new Image()
-  img.src = `/art/${t.deck}-front.webp`
-})
-
-flipBtn.addEventListener('click', () => {
-  if (!showingFront) {
-    flipInner.classList.add('flipped')
-    showingFront = true
-  } else {
-    flipInner.classList.remove('flipped')
-    showingFront = false
-    // ganti isi muka + punggung SETELAH balik, di tengah transisi (nggak kelihatan)
-    setTimeout(() => {
-      idx = (idx + 1) % TEASERS.length
-      setFront(TEASERS[idx])
-      backArt.src = `/art/${TEASERS[idx].deck}-back.webp`
-    }, 300)
-  }
-})
-
-/* ═══════════ Teaser S3: flip per level ═══════════ */
-
-document.querySelectorAll('.flip-mini').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    btn.querySelector('.flip-inner').classList.toggle('flipped')
-  })
-})
-
-/* ═══════════ Type strip S4: baris menyala saat lewat tengah layar ═══════════ */
-
-const tsObserver = new IntersectionObserver(
-  (entries) => {
-    for (const e of entries) {
-      if (e.isIntersecting) {
-        e.target.classList.add('on')
-        tsObserver.unobserve(e.target)
-      }
-    }
-  },
-  // pita aktivasi condong ke bawah viewport — baris terakhir section
-  // (dekat ujung halaman) tetap bisa menyala walau tak pernah sampai tengah
-  { rootMargin: '-30% 0px -15% 0px' },
-)
-document.querySelectorAll('.ts-row').forEach((el) => tsObserver.observe(el))
-
-/* ═══════════ FAQ accordion (S6) ═══════════ */
-
-// Satu jawaban kebuka dalam satu waktu — biar daftarnya nggak memanjang
-// dan mata nggak kehilangan posisi (pola accordion fourmula).
-const faqItems = [...document.querySelectorAll('.faq-item')]
-
-faqItems.forEach((item) => {
-  const btn = item.querySelector('.faq-q')
-  btn.addEventListener('click', () => {
-    const willOpen = !item.classList.contains('open')
-    faqItems.forEach((other) => {
-      other.classList.toggle('open', other === item && willOpen)
-      other.querySelector('.faq-q').setAttribute('aria-expanded', String(other === item && willOpen))
-    })
-  })
-})
-
-/* ═══════════ Reveal on-scroll (S2 dst.) ═══════════ */
-
-const observer = new IntersectionObserver(
-  (entries) => {
-    for (const e of entries) {
-      if (e.isIntersecting) {
-        e.target.classList.add('shown')
-        observer.unobserve(e.target)
-      }
-    }
-  },
-  { threshold: 0.25 },
-)
-document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
+document.querySelectorAll('[data-app]').forEach((a) => (a.href = app(a.dataset.app)))

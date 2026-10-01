@@ -9,1983 +9,806 @@
   font-display: swap;
 }
 
-/* Token 1:1 dari collection `RYLL` (lihat Ryll New UI/src/index.css). */
+/* Semua angka di file ini diambil dari Figma: Design System Uhuy / Test,
+   frame "RYLL — Landing page / Desktop 1440 · ringkas" (206:35670), plus
+   versi Tablet 768 (206:44792) dan Mobile 375 (206:44089). */
 @theme {
   --font-sans: 'Stack Sans Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-  --color-ink: #252421;
-  --color-ink-secondary: #525252;
-  --color-muted: #9a9a9a;
-  --color-inverse: #ffffff;
-
-  --color-surface: #ffffff;
-  --color-surface-secondary: #ececec;
-  --color-surface-dark: #252421;
-
-  --color-hairline: #efede7;
-  --color-hairline-strong: #e5e3dc;
-  --color-selected: #252421;
-  --color-card-line: #c0c0c0;
-
-  --color-alert: #f88787;
-
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-full: 999px;
-
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 12px;
-  --spacing-lg: 16px;
-  --spacing-xl: 20px;
-  --spacing-2xl: 24px;
+  --color-dasar: #050304;
+  --color-ink: #0a0607;
+  --color-peach: #ffe2c4;
 }
 
-@layer base {
-  :root {
-    --tracking-ryll: -0.005em;
-    color-scheme: light;
-    /* Geometri ring. Tinggi total ring = 2r + tinggi kartu mini (0.617r) =
-       2.62r. Radiusnya JANGAN dihitung dari vh mentah — navbar dan headline
-       tingginya tetap, jadi di layar pendek pita kosong buat ring habis duluan
-       dan ring nempel navbar / nabrak headline. Di sini radius diturunkan dari
-       SISA ruang: (tinggi layar − jatah navbar+headline+napas) ÷ 2.62. */
-    --ring-band: calc(100svh - 380px);
-    --ring-r: clamp(120px, min(20vw, var(--ring-band) / 2.62), 470px);
-    --mini-w: calc(var(--ring-r) * 0.47);
-    /* Kartu pusat DITURUNKAN dari --ring-r, jangan dipatok angka sendiri.
-       Dulu --center-scale ditulis mutlak di 5 breakpoint terpisah, jadi tiap
-       kali radius ring berubah proporsinya lepas dan kartu tengah kelihatan
-       kegedean. Sekarang lebarnya selalu 0.70 × radius ring (≈1.5× kartu mini).
-
-       Rasionya DIHITUNG DI JS (syncCenterScale), bukan di CSS. CSS nggak bisa
-       bagi length dengan length, dan trik tan(atan2(a,b)) = a/b RUSAK di Safari:
-       WebKit mengabaikan argumen keduanya, jadi --center-scale invalid → width
-       jatuh ke auto + scale ke none → kartu balik ke 343×450 alias raksasa yang
-       nelen seluruh ring. Terbukti di iPhone, tak pernah muncul di Chrome.
-
-       Angka di bawah cuma cadangan kalau JS mati; ditutupi preloader jadi tak
-       pernah kelihatan. JS menimpanya di :root sebelum halaman tampil. */
-    --center-ratio: 0.70;
-    --center-scale: 0.32;
-  }
-
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* target anchor menu mendarat di bawah navbar floating */
-  [id] {
-    scroll-margin-top: 84px;
-  }
-
-  body {
-    margin: 0;
-    font-family: var(--font-sans);
-    letter-spacing: var(--tracking-ryll);
-    color: var(--color-ink);
-    background: #ffffff;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    overflow-x: clip;
-  }
-
-  button {
-    font: inherit;
-    letter-spacing: inherit;
-    color: inherit;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-  }
+:root {
+  --dasar: #050304;
+  --ink: #0a0607;
+  --peach: #ffe2c4;
+  --gutter: 76px;
+  --max: 1288px;
+  color-scheme: dark;
+}
+@media (max-width: 1023px) {
+  :root { --gutter: 40px; }
+}
+@media (max-width: 639px) {
+  :root { --gutter: 20px; }
 }
 
-/* ═══════════ Preloader ═══════════ */
-
-#preloader {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: #ffffff;
-  transition: opacity 0.45s ease 0.1s;
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+html.diam { scroll-behavior: auto; }
+body {
+  margin: 0;
+  background: var(--dasar);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
-#preloader-count {
-  position: absolute;
-  top: 8px;
-  left: 28px;
-  font-size: clamp(88px, 10vw, 136px);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+h1, h2, h3, p, ol, ul { margin: 0; padding: 0; }
+ol, ul { list-style: none; }
+
+.skip {
+  position: fixed; left: 16px; top: -60px; z-index: 100;
+  background: #fff; color: var(--ink); padding: 10px 16px; border-radius: 999px; font-weight: 600;
 }
-html.loaded #preloader {
-  opacity: 0;
-  pointer-events: none;
+.skip:focus { top: 16px; }
+
+:focus-visible { outline: 3px solid rgba(255, 255, 255, 0.55); outline-offset: 2px; }
+
+/* ═══════════ Bahan dasar ═══════════ */
+
+.glass {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
 }
 
-/* ═══════════ S0 · Navbar ═══════════ */
+/* Teks aksen: putih yang memudar, sama dengan kata raksasa di aplikasi. */
+.aksen {
+  background: linear-gradient(105deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.24) 55%, rgba(255, 255, 255, 0.42) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
-.nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  display: flex;
+/* ── Tombol: Default · Hover · Pressed · Focus (frame "Tombol · state") ── */
+.btn {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px 28px;
-  pointer-events: none;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 28px;
+  border-radius: 999px;
+  font-size: 17px;
+  line-height: 22px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 150ms, transform 150ms;
 }
-.nav > * {
-  pointer-events: auto;
+.btn:active { transform: scale(0.97); }
+.btn:focus-visible { outline: 3px solid rgba(255, 255, 255, 0.55); outline-offset: 0; }
+.btn-white { background: #fff; color: var(--ink); }
+.btn-white:hover { background: #f4eeea; }
+.btn-white:active { background: #e3dad5; }
+.btn-glass {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  color: #fff;
+}
+.btn-glass:hover { background: rgba(255, 255, 255, 0.18); }
+.btn-glass:active { background: rgba(255, 255, 255, 0.24); }
+.btn-sm { padding: 12px 22px; font-size: 15px; line-height: 20px; }
+.btn-block { width: 100%; }
+.btn-shadow { box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); }
+
+.chip-dark {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: #1c1716;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 13px; line-height: 18px; font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
 }
 
-/* LogoMark — replika komponen Logo PWA (tile kaca + ghost), rasio dari ukuran --lm */
+/* ── Logo: tile kaca + ghost, rasio dari --lm (replika komponen Logo PWA) ── */
+.logo { display: inline-flex; align-items: center; gap: calc(var(--lm, 36px) * 0.1); }
+.logo-word { font-weight: 600; font-size: 24.6px; line-height: 1; letter-spacing: -0.001em; }
+.logo-sm .logo-word { font-size: 13.7px; }
 .logomark {
-  position: relative;
-  display: inline-block;
-  flex-shrink: 0;
-  width: var(--lm);
-  height: var(--lm);
+  position: relative; display: inline-block; flex-shrink: 0;
+  width: var(--lm); height: var(--lm);
   border-radius: calc(var(--lm) * 0.25);
-  background: #ffffff;
-  border: calc(var(--lm) * 0.0334) solid #ffffff;
+  background: #fff;
+  border: calc(var(--lm) * 0.024) solid #fff;
   box-shadow: 0 calc(var(--lm) * 0.1) calc(var(--lm) * 0.158) rgba(22, 29, 36, 0.08);
 }
 .logomark-tile {
-  position: absolute;
-  inset: calc(var(--lm) * 0.1);
+  position: absolute; inset: calc(var(--lm) * 0.1);
   border-radius: calc(var(--lm) * 0.2083);
-  background-image: linear-gradient(180deg, #ffffff 0%, #f2f2f2 100%);
-  border: calc(var(--lm) * 0.0125) solid #ffffff;
+  background-image: linear-gradient(180deg, #fff 0%, #f2f2f2 100%);
+  border: calc(var(--lm) * 0.024) solid #fff;
   box-shadow: 0 calc(var(--lm) * 0.0917) calc(var(--lm) * 0.1834) rgba(134, 134, 134, 0.4);
 }
 .logomark img {
   position: absolute;
-  width: calc(var(--lm) * 0.439);
-  height: calc(var(--lm) * 0.439);
-  left: calc(var(--lm) * 0.268);
-  top: calc(var(--lm) * 0.293);
+  width: calc(var(--lm) * 0.43); height: calc(var(--lm) * 0.43);
+  left: calc(var(--lm) * 0.3); top: calc(var(--lm) * 0.32);
 }
 
-/* Pill hitam tengah: Menu + scroll % (pola fourmula) */
-.nav-pill {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--color-ink);
-  color: var(--color-inverse);
-  border-radius: var(--radius-md);
-  padding: 8px 8px 8px 16px;
-  font-size: 14px;
-  box-shadow: 0 2px 8px rgba(37, 36, 33, 0.12);
+/* ── Kartu RYLL: replika GameCard 343×450. Semua ukuran dalam cqw, jadi
+      satu markup bisa dipakai 140px sampai 343px tanpa angka per ukuran. ── */
+.rcard {
+  container-type: inline-size;
+  position: relative;
+  aspect-ratio: 343 / 450;
+  /* cqw di elemen ini dihitung dari container INDUKNYA, jadi radius luar
+     pakai persen; semua ukuran dalam ada di .rcard-in */
+  border-radius: 5.83% / 4.44%;
 }
-.nav-burger {
+.rcard-in {
+  height: 100%;
+  background: #fff;
+  border-radius: 5.83cqw;
+  padding: 4.66cqw;
+}
+.rcard-art {
+  position: relative;
+  height: 100%;
+  border-radius: 3.17cqw;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  width: 18px;
-}
-.nav-burger i {
-  height: 1.5px;
-  background: var(--color-inverse);
-  border-radius: 1px;
-}
-/* label Menu/Close: dua kata ditumpuk di sel grid yang sama,
-   cross-slide halus saat toggle (lama naik, baru masuk dari bawah) */
-.nav-menu-label {
-  font-weight: 500;
-  display: grid;
-  text-align: left;
-}
-.lm {
-  grid-area: 1 / 1;
-  transition:
-    opacity 0.28s ease,
-    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.lm-close {
-  opacity: 0;
-  transform: translateY(9px);
-}
-html.menu-open .lm-menu {
-  opacity: 0;
-  transform: translateY(-9px);
-}
-html.menu-open .lm-close {
-  opacity: 1;
-  transform: none;
-}
-.nav-progress {
-  background: rgba(255, 255, 255, 0.14);
-  border-radius: var(--radius-sm);
-  padding: 5px 12px;
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-  min-width: 46px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4.66cqw;
   text-align: center;
 }
-
-/* burger → X saat menu terbuka */
-.nav-burger i {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+.rcard-art > img.bg {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;
 }
-html.menu-open .nav-burger i:first-child {
-  transform: translateY(2.75px) rotate(45deg);
+.rcard-art > :not(.bg) { position: relative; z-index: 1; }
+.rcard-logo { display: inline-flex; align-items: center; gap: 1.2cqw; font-weight: 600; font-size: 8.37cqw; line-height: 1; }
+.rcard-logo .logomark { --lm: 9cqw; }
+.rcard-q { font-size: 7.93cqw; line-height: 1.28; letter-spacing: 0.01em; font-weight: 500; }
+.rcard-pill {
+  background: #fff; color: #252421;
+  border-radius: 3.17cqw; padding: 1.59cqw 3.97cqw;
+  font-size: 3.97cqw; line-height: 6.35cqw; font-weight: 400;
 }
-html.menu-open .nav-burger i:last-child {
-  transform: translateY(-2.75px) rotate(-45deg);
+.rcard-mid { display: flex; flex-direction: column; align-items: center; gap: 1.5cqw; }
+.rcard-label { font-size: 3.4cqw; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 500; opacity: 0.85; }
+.rcard-name { font-size: 10cqw; line-height: 1.1; font-weight: 600; letter-spacing: -0.01em; }
+.rcard-tap { font-size: 3.6cqw; opacity: 0.85; }
+.rcard-cta {
+  position: absolute !important; left: 50%; bottom: 4.66cqw; transform: translateX(-50%);
+  background: #fff; color: var(--ink); border-radius: 999px;
+  padding: 2.4cqw 4.6cqw; font-size: 4.6cqw; line-height: 1.3; font-weight: 600; white-space: nowrap;
+  opacity: 0; transition: opacity 180ms;
 }
-
-/* ═══════════ Menu panel (turun dari pill nav, pola fourmula) ═══════════ */
-
-.menu-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 44;
-  visibility: hidden;
-}
-html.menu-open .menu-overlay {
-  visibility: visible;
-}
-
-.menu-panel {
-  position: fixed;
-  left: 50%;
-  top: 12px;
-  z-index: 46; /* di bawah nav (50): pill tetap jadi header panel */
-  width: min(360px, calc(100vw - 32px));
-  box-sizing: border-box;
-  background: var(--color-ink);
-  color: var(--color-inverse);
-  border-radius: var(--radius-lg); /* 16 = radius panel di DNA */
-  padding: 80px 32px 40px;
-  box-shadow:
-    0 2px 8px rgba(37, 36, 33, 0.16),
-    0 24px 60px rgba(37, 36, 33, 0.28);
-  transform: translateX(-50%) translateY(-14px) scale(0.96);
-  transform-origin: 50% 0;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.32s ease,
-    visibility 0s linear 0.32s;
-}
-html.menu-open .menu-panel {
-  transform: translateX(-50%);
-  opacity: 1;
-  visibility: visible;
-  transition:
-    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.28s ease;
+/* Kartu terkunci: abu-abu, pertanyaan diburamkan supaya ketahuan ada isinya. */
+.rcard.is-locked .bg { filter: grayscale(1); }
+.rcard.is-locked .rcard-q { filter: blur(2.2cqw); }
+.lock-tag {
+  position: absolute !important; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  background: rgba(5, 3, 4, 0.7); color: var(--peach);
+  border-radius: 999px; padding: 3.1cqw 5.2cqw; white-space: nowrap;
+  font-size: 5.7cqw; line-height: 1.27; font-weight: 600;
 }
 
-/* isi panel: stagger halus per item (--i = urutan) */
-.menu-label,
-.menu-link,
-.menu-rule {
-  opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity 0.35s ease,
-    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-html.menu-open .menu-label,
-html.menu-open .menu-link,
-html.menu-open .menu-rule {
-  opacity: 1;
-  transform: none;
-  transition-delay: calc(0.08s + var(--i) * 0.035s);
-}
+/* ═══════════ S0 · Nav ═══════════ */
 
-.menu-label {
-  display: block;
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--color-muted);
-  margin-bottom: 16px;
+.nav {
+  position: fixed; inset: 0 0 auto 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 48px 0;
+  pointer-events: none;
 }
-.menu-links {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.nav > * { pointer-events: auto; }
+/* Lewat hero: fade hitam di belakang nav biar tetap terbaca (Nav · state 02). */
+.nav::before {
+  content: ''; position: absolute; inset: 0 0 -40px 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(5, 3, 4, 0.96) 0%, rgba(5, 3, 4, 0.88) 55%, rgba(5, 3, 4, 0) 100%);
+  opacity: 0; transition: opacity 250ms; pointer-events: none;
 }
-.menu-link {
-  color: var(--color-inverse);
-  text-decoration: none;
-  font-size: 22px;
-  line-height: 1.35;
-  font-weight: 400;
-  width: fit-content;
-  transition-property: opacity, transform, color;
-}
-/* hover roll: gerakan yang sama dengan transisi Menu → Close */
-.menu-link .roll {
-  display: grid;
-}
-.roll-line {
-  grid-area: 1 / 1;
-  transition:
-    opacity 0.28s ease,
-    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.roll-line:nth-child(2) {
-  opacity: 0;
-  transform: translateY(9px);
-}
-.menu-link:hover .roll-line:first-child,
-.menu-link:focus-visible .roll-line:first-child {
-  opacity: 0;
-  transform: translateY(-9px);
-}
-.menu-link:hover .roll-line:nth-child(2),
-.menu-link:focus-visible .roll-line:nth-child(2) {
-  opacity: 1;
-  transform: none;
-}
-.menu-links-small .menu-link {
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.7;
-}
-.menu-links-small {
-  gap: 6px;
-}
-.menu-rule {
-  border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
-  margin: 52px 0 26px;
-}
+.nav.scrolled::before { opacity: 1; }
+.nav .logo { --lm: 36px; }
 
-/* Tombol primary RYLL: gradient gelap + rim light atas (DNA) */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, #444444 0%, #262630 100%);
-  color: var(--color-inverse);
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: var(--radius-md);
-  padding: 12px 20px;
-  text-decoration: none;
-  box-shadow:
-    inset 0 1.5px 1px rgba(255, 255, 255, 0.14),
-    0 2px 4px rgba(0, 0, 0, 0.04),
-    0 4px 8px rgba(0, 0, 0, 0.02);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+.nav-pill {
+  position: absolute; left: 50%; top: 24px; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 14px;
+  padding: 12px 18px 12px 20px;
+  border-radius: 999px;
+  background: rgba(22, 22, 22, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(30px);
+  font-size: 15px; line-height: 20px; font-weight: 600;
 }
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    inset 0 1.5px 1px rgba(255, 255, 255, 0.14),
-    0 4px 10px rgba(0, 0, 0, 0.08);
+.nav-pill-rule { width: 1px; height: 16px; background: rgba(255, 255, 255, 0.2); }
+.nav-pill-pct { font-weight: 500; color: rgba(255, 255, 255, 0.6); font-variant-numeric: tabular-nums; min-width: 3ch; text-align: right; }
+
+.nav-right { display: flex; align-items: center; gap: 8px; }
+.nav-gas { display: none; }
+.nav.scrolled .nav-gas { display: inline-flex; }
+
+/* Menu terbuka (Nav · state 01) */
+.menu {
+  position: absolute; left: 50%; top: 80px; transform: translateX(-50%);
+  width: 340px; padding: 10px;
+  border-radius: 24px;
+  background: rgba(28, 23, 22, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(30px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  display: flex; flex-direction: column;
 }
+.menu[hidden] { display: none; }
+.menu-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 14px; border-radius: 14px;
+  font-size: 20px; line-height: 26px; font-weight: 600; letter-spacing: -0.01em;
+}
+.menu-item small { font-size: 13px; font-weight: 500; color: rgba(255, 255, 255, 0.4); }
+.menu-item:hover, .menu-item:focus-visible { background: rgba(255, 255, 255, 0.08); }
+.menu-masuk { display: none; }
+.menu-cta { margin-top: 10px; padding: 14px 20px; font-size: 16px; line-height: 20px; }
+.menu-scrim {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(5, 3, 4, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.menu-scrim[hidden] { display: none; }
 
 /* ═══════════ S1 · Hero ═══════════ */
 
 .hero {
   position: relative;
-  height: 100svh;
-  min-height: 640px;
   overflow: clip;
-}
-
-/* Probe buat baca --ring-r dalam px dari JS. getComputedStyle pada custom
-   property yang belum diregistrasi mengembalikan token mentah ("clamp(118px,
-   min(36vw, 24vh), 170px)"), bukan hasil hitungnya — jadi satu-satunya cara
-   yang pasti di semua engine adalah mengukur elemen sungguhan. Sengaja di
-   .hero, BUKAN di .ring-scroll: ring itu dirotasi saat scroll, dan rect
-   elemen yang ikut terotasi lebarnya menyusut sebesar cos(sudut). */
-.ring-probe {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: var(--ring-r);
-  height: 0;
-  visibility: hidden; /* jangan display:none — itu bikin rect-nya 0 */
-  pointer-events: none;
-}
-
-/* -- ring kartu -- */
-
-.ring-scroll {
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  transform: translate(-50%, -50%) translateY(var(--sy, 0px)) rotate(var(--sr, 0deg));
-  will-change: transform;
-}
-/* idle: ring berputar pelan seperti RODA — kartu ikut orientasi
-   lingkaran (radial/tangensial): atas tegak, kanan 90°, bawah terbalik */
-.ring-spin {
-  position: absolute;
-  left: 0;
-  top: 0;
-  animation: ring-orbit 110s linear infinite;
-}
-@keyframes ring-orbit {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.orbit {
-  position: absolute;
-  left: 0;
-  top: 0;
-  /* origin WAJIB (0,0): kotak .orbit punya ukuran (dari mini-card),
-     origin default di tengah kotak menggeser pusat lingkaran →
-     ring mengayun saat roda berputar */
-  transform-origin: 0 0;
-  /* rotate(90deg) terakhir = orientasi tangensial: puncak kartu
-     selalu menghadap keluar lingkaran */
-  transform: rotate(var(--a)) translateX(var(--ring-r)) rotate(90deg);
-}
-
-/* kartu mini di ring: frame putih + artwork, rasio persis kartu 343×450 */
-.mini-card {
-  width: var(--mini-w);
-  aspect-ratio: 343 / 450;
-  background: var(--color-surface);
-  border: 0.5px solid var(--color-card-line);
-  border-radius: calc(var(--mini-w) * 0.0583); /* 20/343 */
-  padding: calc(var(--mini-w) * 0.0466); /* 16/343 */
-  box-sizing: border-box;
-  transform: translate(-50%, -50%) scale(var(--in, 0));
-  opacity: var(--in, 0);
-  transition:
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s),
-    opacity 0.5s ease var(--d, 0s);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.04),
-    0 24px 44px rgba(134, 134, 134, 0.13);
-}
-html.loaded .mini-card {
-  --in: 1;
-}
-.mini-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: calc(var(--mini-w) * 0.0317); /* 10.88/343 */
-  display: block;
-}
-
-/* -- kartu pusat (replika GameCard 343×450, di-scale) -- */
-
-.center-card {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform: translate(-50%, -50%) scale(var(--in, 0.7));
-  opacity: var(--in, 0);
-  transition:
-    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.45s,
-    opacity 0.5s ease 0.45s;
-}
-html.loaded .center-card {
-  --in: 1;
-}
-
-.flip3d {
-  perspective: 1400px;
-  display: block;
-  width: calc(343px * var(--center-scale));
-  height: calc(450px * var(--center-scale));
-}
-/* scaling terpisah dari flip: scaler mengecilkan dari 0 0,
-   flip berputar di poros tengah kartu */
-.flip-scaler {
-  width: 343px;
-  height: 450px;
-  transform-origin: 0 0;
-  scale: var(--center-scale);
-  transform-style: preserve-3d;
-}
-.flip-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.flip-inner.flipped {
-  transform: rotateY(180deg);
-}
-.face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  /* backface-visibility saja TIDAK cukup: di WebKit muka depan yang sudah
-     diputar 180° tetap ikut dilukis, dan karena ia belakangan di DOM ia
-     menimpa muka belakang — hasilnya kartu terbaca TERBALIK CERMIN. Mulus di
-     Chrome, rusak di Safari/iOS. Jadi sisi yang membelakangi disembunyikan
-     eksplisit; pertukaran ditunda 280ms = separuh durasi flip, tepat saat
-     kartu tegak lurus ke kita, jadi peralihannya tak kelihatan. */
-  visibility: hidden;
-  transition: visibility 0s linear 280ms;
-}
-.face-back {
-  visibility: visible;
-}
-.face-front {
-  transform: rotateY(180deg);
-}
-.flip-inner.flipped .face-back {
-  visibility: hidden;
-}
-.flip-inner.flipped .face-front {
-  visibility: visible;
-}
-
-/* GameCard vanilla: angka-angka persis dari GameCard.tsx */
-.gcard {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  width: 343px;
-  height: 450px;
-  box-sizing: border-box;
-  background: var(--color-surface);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-lg);
-  overflow: hidden;
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.04),
-    0 34px 60px rgba(134, 134, 134, 0.16);
-}
-.gcard-front {
-  border: 1px solid var(--color-hairline);
-}
-.gcard-back {
-  border: 0.5px solid var(--color-card-line);
-}
-.gcard-body {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-}
-.gcard-art {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 10.88px;
-}
-.gcard-overlay {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  height: 100%;
-  box-sizing: border-box;
-  padding: var(--spacing-lg);
-}
-.gcard-logo {
-  display: flex;
-  align-items: center;
-  gap: 4.1px;
-}
-.gcard-logo-word {
-  color: var(--color-inverse);
-  font-size: 28.7px;
-  line-height: 28.7px;
-  font-weight: 600;
-}
-.gcard-q {
-  margin: 0;
-  text-align: center;
-  color: var(--color-inverse);
-  font-size: 27.21px;
-  line-height: 1.28;
-  letter-spacing: 0.01em;
-  font-weight: 500;
-}
-.gcard-pill {
-  background: var(--color-surface);
-  color: var(--color-ink);
-  border-radius: 10.88px;
-  padding: 5.44px 13.6px;
-  font-size: 13.6px;
-  line-height: 21.77px;
-}
-.gcard-tap {
-  text-align: center;
-  color: var(--color-inverse);
-  font-size: 24px;
-  line-height: 1.3;
-  letter-spacing: 0.01em;
-  font-weight: 500;
-  text-shadow: 0 2px 12px rgba(37, 36, 33, 0.4);
-}
-.gcard-hint {
-  text-align: center;
-  color: var(--color-inverse);
-  font-size: 14px;
-  letter-spacing: 0.01em;
-  font-weight: 300;
-  text-shadow: 0 1px 6px rgba(37, 36, 33, 0.35);
-}
-
-/* -- pill tema melayang -- */
-
-/* -- headline -- */
-
-.hero-headline {
-  position: absolute;
-  left: 28px;
-  bottom: 18px;
-  z-index: 5;
-  margin: 0;
-  font-size: clamp(40px, 4.9vw, 72px);
-  font-weight: 500;
-  line-height: 1.06;
-  letter-spacing: -0.018em;
-  transform: translateY(var(--hp, 0px));
-  will-change: transform;
-}
-.hl-line {
-  display: block;
-  overflow: hidden;
-}
-.hl-line > * {
-  vertical-align: baseline;
-}
-/* reveal per baris */
-.hl-line {
-  clip-path: inset(0 0 110% 0);
-  transition: clip-path 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s);
-}
-html.loaded .hl-line {
-  clip-path: inset(-10% 0 -10% 0);
-}
-.hl-ink {
-  color: var(--color-ink);
-}
-.hl-muted {
-  color: var(--color-muted);
-}
-.sticker {
-  display: inline-block;
-  height: 0.82em;
-  width: auto;
-  vertical-align: -0.08em;
-}
-
-.hero-copyright,
-.hero-scroll-hint {
-  position: absolute;
-  bottom: 24px;
-  font-size: 12px;
-  line-height: 20px;
-  color: var(--color-muted);
-}
-.hero-copyright {
-  left: 50%;
-  transform: translateX(-50%);
-}
-.hero-scroll-hint {
-  right: 28px;
-}
-
-/* ═══════════ S2 · Split intro ═══════════ */
-
-.split-intro {
-  display: grid;
-  grid-template-columns: 26% 1fr;
-  border-top: 1px solid var(--color-hairline);
-}
-.rail {
-  border-right: 1px solid var(--color-hairline);
-  padding: 32px 28px;
-}
-.rail-label {
-  position: sticky;
-  top: 96px;
-}
-.split-main {
-  position: relative;
-  padding: 88px 28px 96px 40px;
-}
-.display {
-  margin: 0;
-  font-size: clamp(38px, 5vw, 72px);
-  font-weight: 500;
-  line-height: 1.08;
-  letter-spacing: -0.018em;
-}
-.split-side {
-  margin: 0;
-  position: absolute;
-  right: 40px;
-  /* duduk DI BAWAH garis display, bukan sejajar — display panjang
-     ("…18 detik.") nggak akan pernah nabrak */
-  bottom: 26px;
-  text-align: right;
-  font-size: 14px;
-  line-height: 24px;
-  color: var(--color-ink-secondary);
-}
-/* tablet: ruang horizontal nggak cukup — teks samping turun ke bawah display */
-@media (max-width: 1100px) {
-  .split-side {
-    position: static;
-    text-align: left;
-    margin-top: 28px;
-  }
-}
-
-/* ═══════════ S2 · Pernyataan pembuka + baris angka ═══════════
-   Alternatif dari pola split 26/74 (yang dipakai juga di intro S5 dan S6).
-   Di sini blok teksnya penuh tanpa rail, jadi S2 punya bentuk sendiri dan
-   nggak kebaca sebagai section ketiga yang bentuknya sama.
-   Tugasnya: jawab "ini apa · buat siapa · berapa orang" dalam sekali baca. */
-
-.stmt {
-  border-top: 1px solid var(--color-hairline);
-  padding: clamp(44px, 5.4vw, 88px) 28px clamp(44px, 4.6vw, 72px);
-}
-.stmt-text {
-  margin: clamp(24px, 2.6vw, 40px) 0 0;
-  /* 24ch: kalimatnya patah jadi 3–4 baris pendek — kebaca sebagai pernyataan,
-     bukan paragraf yang melebar sampai tepi layar */
-  max-width: 24ch;
-  font-size: clamp(30px, 4.2vw, 64px);
-  font-weight: 500;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-}
-/* nada kedua: kalimat penjelas turun ke muted, pola dua-nada yang sama
-   dengan headline hero dan display section lain */
-.stmt-muted {
-  color: var(--color-muted);
-}
-
-/* kartu tema nyempil DI DALAM alur kalimat — warna masuk ke section ini tanpa
-   perlu kotak/bento. Semua ukuran pakai em, jadi kartunya ikut mengecil sendiri
-   waktu font display-nya turun di layar kecil. */
-.stmt-cards {
-  display: inline-flex;
-  align-items: center;
-  vertical-align: -0.14em;
-  margin: 0 0.16em 0 0.22em;
-}
-.stmt-cards i {
-  display: block;
-  background: var(--color-surface);
-  border-radius: 0.1em;
-  padding: 0.035em;
-  rotate: var(--r, 0deg);
-  margin-left: -0.16em;
-  box-shadow:
-    0 0.01em 0.03em rgba(0, 0, 0, 0.06),
-    0 0.1em 0.2em rgba(37, 36, 33, 0.16);
-}
-.stmt-cards i:first-child {
-  margin-left: 0;
-}
-.stmt-cards img {
-  display: block;
-  width: 0.53em;
-  aspect-ratio: 311 / 420;
-  object-fit: cover;
-  border-radius: 0.07em;
-}
-
-.stmt-stats {
-  display: flex;
-  align-items: flex-start;
-  gap: clamp(20px, 4vw, 72px);
-  margin-top: clamp(36px, 4.4vw, 68px);
-}
-.stat {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-left: clamp(14px, 2.2vw, 32px);
-  border-left: 1px solid var(--color-hairline);
-}
-.stat:first-child {
-  padding-left: 0;
-  border-left: 0;
-}
-.stat b {
-  font-size: clamp(28px, 3.2vw, 50px);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
-.stat span {
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--color-muted);
-}
-
-@media (max-width: 640px) {
-  .stmt {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-  .stmt-text {
-    max-width: none;
-  }
-  .stmt-stats {
-    gap: 16px;
-  }
-}
-
-/* ═══════════ S3 · Bento: Tema / Contoh kartu / Layar hasil ═══════════ */
-
-/* Pola Apex "how it works 03": kolom kiri sticky + rel nomor bergaris yang
-   keisi mengikuti scroll + blok konten bertumpuk di kanan. Kartu berbingkai
-   milik Apex diganti hairline biar seragam dengan Cara Main & FAQ. */
-.how {
-  border-top: 1px solid var(--color-hairline);
-  padding: clamp(40px, 4.6vw, 76px) 28px clamp(44px, 5vw, 80px);
-}
-.how-inner {
-  display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
-  gap: clamp(28px, 4.5vw, 88px);
-}
-
-/* -- kolom kiri: nempel selama blok kanan discroll -- */
-.how-aside {
-  position: sticky;
-  top: 104px;
-  align-self: start;
-}
-.how-aside .bento-cap {
-  display: flex;
-  margin-bottom: clamp(16px, 2vw, 28px);
-}
-.how-title {
-  margin: 0;
-  font-size: clamp(30px, 3.4vw, 52px);
-  font-weight: 500;
-  line-height: 1.08;
-  letter-spacing: -0.018em;
-}
-.how-desc {
-  margin: 14px 0 0;
-  max-width: 34ch;
-  font-size: 15px;
-  line-height: 26px;
-  color: var(--color-muted);
-}
-.how-cta {
-  margin-top: clamp(22px, 2.6vw, 34px);
-}
-.how-note {
-  display: block;
-  margin-top: 12px;
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--color-muted);
-}
-
-/* -- kolom kanan: rel nomor + langkah -- */
-.how-steps {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-/* Garis dasar + garis isian. top/height-nya dipasang JS dari posisi asli
-   lingkaran pertama & terakhir — kalau dipatok CSS, garisnya bakal menjulur
-   melewati nomor terakhir sepanjang visual di bawahnya (HP itu tinggi). */
-.how-line {
-  position: absolute;
-  left: calc(var(--num, 46px) / 2);
-  width: 1px;
-  background: var(--color-hairline-strong);
-}
-.how-fill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 0;
-  background: var(--color-ink);
-}
-
-.how-step {
-  --num: 46px;
-  display: grid;
-  grid-template-columns: var(--num) minmax(0, 1fr);
-  gap: clamp(16px, 2vw, 30px);
-  padding-bottom: clamp(44px, 5vw, 88px);
-}
-.how-step:last-child {
-  padding-bottom: 0;
-}
-/* nomor: latar putih WAJIB — dia yang nutup garis di belakangnya */
-.how-num {
-  position: relative;
+  padding-top: 161px;
+  /* kartu bawah: tinggi baris 345, terpotong 57 di tepi bawah */
+  --hk: 1;
+}
+.hero-glow { position: absolute; pointer-events: none; border-radius: 50%; }
+.hero-glow-corner {
+  left: -280px; top: -280px; width: 760px; height: 560px;
+  background: radial-gradient(closest-side, rgba(88, 88, 88, 0.55), rgba(40, 86, 106, 0));
+}
+.hero-glow-center {
+  left: 50%; top: 160px; width: 1100px; height: 700px; transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(88, 88, 88, 0.35), rgba(40, 86, 106, 0));
   z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--num);
-  height: var(--num);
-  border-radius: var(--radius-full);
-  border: 1px solid var(--color-hairline-strong);
-  background: var(--color-surface);
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-muted);
-  font-variant-numeric: tabular-nums;
-  transition:
-    background-color 0.4s ease,
-    border-color 0.4s ease,
-    color 0.4s ease;
 }
-.how-step.on .how-num {
-  background: var(--color-ink);
-  border-color: var(--color-ink);
-  color: var(--color-inverse);
-}
-.how-cap {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 12px;
-  line-height: 18px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-}
-.how-body .sec-desc {
-  margin-bottom: clamp(22px, 2.6vw, 36px);
-}
-/* HP defaultnya `margin: 12px auto` (ketengah). Di dalam langkah dia harus
-   rata kiri, sejajar rail tema dan baris teaser di langkah lain. */
-.how-body .phone {
-  margin-left: 0;
-  margin-right: 0;
-}
-.sec-title {
-  margin: 0;
-  font-size: clamp(26px, 2.9vw, 44px);
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: -0.016em;
-}
-.sec-desc {
-  margin: 10px 0 0;
-  max-width: 52ch;
-  font-size: 14px;
-  line-height: 24px;
-  color: var(--color-muted);
-}
-
-@media (max-width: 900px) {
-  .how {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-  /* kolom kiri berhenti sticky dan naik ke atas — di layar sempit nggak ada
-     ruang buat dua kolom sejajar */
-  .how-inner {
-    grid-template-columns: 1fr;
-    gap: clamp(28px, 5vw, 44px);
-  }
-  .how-aside {
-    position: static;
-  }
-  .how-step {
-    --num: 38px;
-    gap: 14px;
-  }
-  .how-num {
-    font-size: 13px;
-  }
-  /* kolom nomor makan 52px, jadi tiga kartu teaser nggak muat lagi dan kartu
-     ketiga kepotong diam-diam. Dijadiin rail geser — kepotongnya jadi sinyal,
-     bukan bug. */
-  .how-body .teaser-row {
-    justify-content: flex-start;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .how-body .teaser-row::-webkit-scrollbar {
-    display: none;
-  }
-  .how-body .teaser {
-    flex: 0 0 auto;
-  }
-}
-.bento-cap {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--color-ink-secondary);
-}
-.cap-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-full);
-  background: var(--color-ink);
-}
-.cap-dot-alert {
-  background: var(--color-alert);
-}
-
-/* -- A · rail tema -- */
-
-/* desktop: 6 kolom rata mengisi penuh lebar container (tanpa sisa kanan);
-   layar sempit: jadi rail scroll (di media query) */
-/* rail full-bleed: kartu terakhir sengaja kepotong tepi kanan layar —
-   sinyal "masih ada lagi" tanpa perlu panah atau kotak pembungkus */
-.tema-rail {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  /* rail hidup di dalam kolom langkah, jadi nggak pakai padding samping.
-     Kartu terakhir kepotong tepi kolom → sinyal "masih ada lagi". */
-  padding-bottom: 4px;
-}
-.tema-rail::-webkit-scrollbar {
-  display: none;
-}
-.tema-card {
-  position: relative;
-  margin: 0;
-  flex: 0 0 clamp(128px, 11vw, 172px);
-  width: auto;
-  aspect-ratio: 311 / 420;
-  border-radius: 14px;
-  overflow: hidden;
-  scroll-snap-align: start;
-  background: var(--color-surface);
-  border: 1px solid var(--color-hairline);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.04),
-    0 12px 28px rgba(134, 134, 134, 0.1);
-}
-.tema-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.tema-name {
-  position: absolute;
-  left: 50%;
-  bottom: 12px;
-  transform: translateX(-50%);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--color-surface);
-  color: var(--color-ink);
-  border-radius: var(--radius-md);
-  padding: 4px 12px;
-  font-size: 13px;
-  line-height: 20px;
-  white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-}
-.tema-name-dark {
-  background: var(--color-surface-dark);
-  color: var(--color-inverse);
-}
-
-/* -- B · teaser flip per level -- */
-
-.teaser-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  justify-items: center;
-  gap: 16px;
-}
-.teaser {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-.flip-mini {
-  --center-scale: 0.5; /* ukuran teaser konstan, tak ikut breakpoint hero */
-}
-.teaser-cap {
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--color-ink-secondary);
-}
-.gcard-logo-sm {
-  text-shadow: 0 1px 6px rgba(37, 36, 33, 0.35);
-}
-.gcard-qwrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-.q-blur {
-  filter: blur(7px);
-}
-.q-note {
-  font-size: 20px;
-  font-weight: 400;
-  color: var(--color-inverse);
-  text-shadow: 0 1px 8px rgba(37, 36, 33, 0.4);
-}
-
-/* -- C · mockup layar hasil -- */
-
-.phone {
-  width: 320px;
-  /* dipotong tepi bawah container ala fourmula, tapi baris ryll.id tetap
-     kebaca — domain adalah jejak satu-satunya dari screenshot (spec §1.6) */
-  margin: 12px auto -34px;
-}
-.phone-screen {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-hairline-strong);
-  border-radius: 28px;
-  padding: 26px 20px 28px;
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.04),
-    0 24px 44px rgba(134, 134, 134, 0.13);
-}
-.ph-kicker {
-  font-size: 11px;
-  line-height: 16px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-muted);
+.hero-center {
+  position: relative; z-index: 2;
+  width: min(746px, 100% - 2 * var(--gutter));
+  margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; gap: 26px;
   text-align: center;
 }
-.ph-name {
-  font-size: 44px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1;
-  text-align: center;
-}
-.ph-rows {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
-}
-.ph-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid var(--color-hairline);
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
-}
-.ph-row span {
-  font-size: 13px;
-  color: var(--color-ink-secondary);
-}
-.ph-row b {
-  font-size: 14px;
-  font-weight: 600;
-}
-.ph-foot {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 6px;
-  padding-top: 12px;
-  border-top: 1px solid var(--color-hairline);
-  font-size: 12px;
-  line-height: 20px;
-  color: var(--color-muted);
-}
-.ph-foot b {
-  color: var(--color-ink);
-  font-weight: 600;
-}
+.hero-title { font-size: 86px; line-height: 1; font-weight: 500; letter-spacing: 0; text-wrap: balance; }
+.hero-sub { font-size: 19px; line-height: 1.4; color: rgba(255, 255, 255, 0.72); }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.lockup { display: inline-flex; align-items: center; gap: 8px; padding-top: 4px; font-size: 13px; line-height: 18px; font-weight: 500; color: rgba(255, 255, 255, 0.55); }
+.lockup .logo-word { color: #fff; }
 
-/* ═══════════ S4 · Type strip ═══════════ */
-
-/* layout ledger: nomor · statement raksasa · sub-copy kanan — satu garis
-   penuh selebar halaman, tanpa kolom kosong */
-.typestrip {
-  padding: 96px 28px 110px;
+/* Deretan kartu terpotong tepi BAWAH hero. clip-path, bukan overflow:
+   inset atas negatif memberi ruang kartu yang terangkat saat hover. */
+.hero-cards {
+  position: relative; z-index: 1;
+  margin-top: 94px;
+  height: calc(288px * var(--hk));
+  clip-path: inset(-160px 0 0 0);
+  display: flex; justify-content: center; align-items: flex-start;
 }
-.ts-cap {
-  display: inline-flex;
-  margin-bottom: 44px;
+.hero-cards-row {
+  display: flex; align-items: flex-end;
+  gap: calc(31px * var(--hk));
+  flex-shrink: 0;
 }
-.ts-rows {
-  display: flex;
-  flex-direction: column;
+.hc { position: relative; width: calc(var(--w) * var(--hk)); flex-shrink: 0; transition: transform 250ms cubic-bezier(.2, .8, .2, 1); }
+.hc .rcard { transition: box-shadow 250ms, outline-color 250ms; outline: 2px solid transparent; outline-offset: 2px; }
+.hc-cta {
+  position: absolute; left: 50%; bottom: calc(100% + 12px); transform: translate(-50%, 6px);
+  background: #fff; color: var(--ink); border-radius: 999px;
+  padding: 10px 18px; font-size: 14px; line-height: 18px; font-weight: 600; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity 200ms, transform 200ms;
 }
-.ts-row {
-  display: grid;
-  grid-template-columns: 76px 1fr minmax(220px, 340px);
-  align-items: center;
-  gap: 24px;
-  border-top: 1px solid var(--color-hairline);
-  padding: 36px 0;
-}
-.ts-row:last-child {
-  border-bottom: 1px solid var(--color-hairline);
-}
-.ts-num {
-  font-size: 14px;
-  line-height: 24px;
-  color: #cfcdc7;
-  font-variant-numeric: tabular-nums;
-  transition: color 0.6s ease;
-}
-.ts-row h3 {
-  margin: 0;
-  font-size: clamp(32px, 4.2vw, 60px);
-  font-weight: 500;
-  line-height: 1.08;
-  letter-spacing: -0.018em;
-  /* mulai abu — menyala jadi ink saat barisnya sampai di tengah layar */
-  color: #cfcdc7;
-  transition: color 0.6s ease;
-}
-.ts-row p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 24px;
-  color: var(--color-muted);
-  text-align: right;
-  opacity: 0;
-  transform: translateY(8px);
-  transition:
-    opacity 0.5s ease 0.1s,
-    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
-}
-.ts-row.on h3,
-.ts-row.on .ts-num {
-  color: var(--color-ink);
-}
-.ts-row.on p {
-  opacity: 1;
-  transform: none;
-}
-
-@media (max-width: 640px) {
-  .typestrip {
-    padding: 64px 16px 72px;
-  }
-  .ts-cap {
-    margin-bottom: 28px;
-  }
-  .ts-row {
-    grid-template-columns: 40px 1fr;
-    gap: 8px 12px;
-    padding: 24px 0;
-    align-items: baseline;
-  }
-  .ts-row h3 {
-    font-size: clamp(28px, 8.2vw, 38px);
-  }
-  .ts-row p {
-    grid-column: 2;
-    text-align: left;
-  }
-  .ts-row p br {
-    display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ts-row h3,
-  .ts-row p {
-    transition: none;
-  }
-}
-
-/* ═══════════ S5-ALT · Cara Main "deret editorial" ═══════════
-   Empat langkah jadi empat BARIS dipisah
-   hairline penuh — halaman tetap putih, tipografi yang kerja (pola split S2 +
-   type strip S4). Warna nggak hilang: artwork kartu asli duduk miring di ujung
-   kanan tiap baris, dan mesh temanya nyala tipis di latar baris saat disorot.
-   Seluruh section muat ±1 layar; versi panel butuh 4 layar scroll. */
-
-.steps {
-  padding: 0 28px 8px;
-  border-top: 1px solid var(--color-hairline);
-}
-
-.srow {
-  position: relative;
-  display: grid;
-  grid-template-columns: clamp(52px, 4.4vw, 74px) minmax(180px, 0.88fr) minmax(0, 1.2fr) clamp(72px, 6.4vw, 94px);
-  grid-template-areas: 'num title desc art';
-  align-items: start;
-  gap: 0 clamp(16px, 2.2vw, 34px);
-  padding: clamp(20px, 2.2vw, 30px) 0;
-  border-bottom: 1px solid var(--color-hairline);
-}
-/* sorot baris: pita abu-abu MUDA hangat yang melebar ke tepi halaman. Sengaja
-   bukan mesh tema — warna tema per baris bikin latarnya nggak ketebak, jadi
-   teks nggak bisa dijamin kebaca. Neutral = kontras sama di keempat baris. */
-.srow::before {
-  content: '';
-  position: absolute;
-  inset: 0 -28px;
-  z-index: -1;
-  background: #f4f3ef;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-/* dikunci ke perangkat ber-pointer: di layar sentuh :hover bisa nyangkut
-   kebawa tap/scroll, dan barisnya bakal ketinggalan gelap */
 @media (hover: hover) {
-  .srow:hover::before {
-    opacity: 1;
-  }
-  /* latarnya terang, jadi teks digelapin satu tingkat — barisnya "menajam"
-     pas disorot. Semua di atas AA terhadap #f4f3ef:
-     deskripsi #525252 → ink, nomor & tag muted → ink-secondary. */
-  .srow:hover .srow-body p {
-    color: var(--color-ink);
-  }
-  .srow:hover .srow-tags,
-  .srow:hover .srow-num {
-    color: var(--color-ink-secondary);
-  }
-  .srow:hover .srow-art {
-    rotate: 0deg;
-    translate: 0 -6px;
-  }
-}
-.srow-title,
-.srow-body p,
-.srow-tags {
-  transition: color 0.4s ease;
+  .hc:hover { transform: translateY(-16px) scale(1.08); z-index: 3; }
+  .hc:hover .rcard { outline-color: rgba(255, 255, 255, 0.9); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65); }
+  .hc:hover .hc-cta { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 }
 
-.srow-num {
-  grid-area: num;
-  font-size: clamp(24px, 2.4vw, 34px);
-  font-weight: 500;
-  line-height: 1.05;
-  letter-spacing: -0.015em;
-  color: var(--color-muted);
-  font-variant-numeric: tabular-nums;
-  transition: color 0.35s ease;
+/* Tag pemain dengan kursor, ala multiplayer */
+.players { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.player {
+  position: absolute; display: inline-flex; align-items: flex-start; gap: 2px;
+  animation: melayang 6s ease-in-out infinite;
+}
+.player b {
+  margin-top: 12px; padding: 4px 10px; border-radius: 999px;
+  background: var(--c); color: var(--ink);
+  font-size: 12px; line-height: 16px; font-weight: 600;
+}
+.cursor {
+  width: 16px; height: 18px; flex-shrink: 0;
+  background: var(--c);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='18'%3E%3Cpath d='M1.5 1.2 14 8.6 8.2 9.8 5.6 15.6Z'/%3E%3C/svg%3E") no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='18'%3E%3Cpath d='M1.5 1.2 14 8.6 8.2 9.8 5.6 15.6Z'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+.player.flip .cursor { transform: scaleX(-1); }
+.player-habibi { left: calc(50% + 392px); top: 432px; }
+.player-nadia { left: calc(50% - 537px); top: 410px; animation-delay: -2s; }
+.player-sinta { left: calc(50% + 529px); top: 322px; animation-delay: -4s; }
+@keyframes melayang {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, -8px); }
 }
 
-.srow-title {
-  grid-area: title;
-  margin: 0;
-  font-size: clamp(30px, 3.6vw, 54px);
-  font-weight: 500;
-  line-height: 1.04;
-  letter-spacing: -0.018em;
+.motion-toggle { position: absolute; z-index: 3; left: calc(50% - 600px); top: 354px; }
+.motion-toggle[aria-pressed='true'] { background: #fff; color: var(--ink); }
+.scroll-hint {
+  position: absolute; z-index: 3; left: 50%; bottom: 34px; transform: translateX(-50%);
+  padding: 10px 18px; font-size: 14px; color: rgba(255, 255, 255, 0.8);
 }
 
-.srow-body {
-  grid-area: desc;
-  /* turun sedikit biar baseline-nya duduk di bawah garis judul raksasa,
-     bukan sejajar — pola teks pendukung fourmula */
-  padding-top: clamp(4px, 0.8vw, 12px);
-}
-.srow-body p {
-  margin: 0;
-  max-width: 44ch;
-  font-size: 15px;
-  line-height: 26px;
-  color: var(--color-ink-secondary);
-}
-/* tag jadi teks kecil ber-middot, bukan pill — lebih editorial */
-.srow-tags {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin-top: 12px;
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--color-muted);
-}
-.srow-tags i {
-  width: 3px;
-  height: 3px;
-  border-radius: var(--radius-full);
-  background: currentColor;
-  opacity: 0.6;
-}
+/* ═══════════ Kepala section (label + judul dua nada + sub) ═══════════ */
 
-/* artwork kartu asli, miring, di ujung kanan baris */
-.srow-art {
-  grid-area: art;
-  justify-self: end;
+.section { padding: 150px var(--gutter); display: flex; flex-direction: column; align-items: center; gap: 64px; }
+.section-tight { padding-top: 40px; }
+.kepala { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+.promo {
+  display: inline-flex; padding: 6px 14px; border-radius: 999px;
+  background: rgba(26, 14, 11, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
   align-self: center;
-  width: clamp(72px, 6.4vw, 94px);
-  aspect-ratio: 311 / 420;
-  border-radius: 10px;
+}
+.judul { font-size: 64px; line-height: 69px; font-weight: 500; letter-spacing: -0.04em; }
+.kepala-sub { font-size: 18px; line-height: 27px; color: rgba(255, 255, 255, 0.65); max-width: 560px; }
+
+/* ═══════════ S2 · Cara main ═══════════ */
+
+.steps { width: 100%; max-width: var(--max); display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.step {
+  display: flex; flex-direction: column; gap: 22px;
+  padding: 28px 28px 32px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  transition: background-color 200ms, border-color 200ms, box-shadow 200ms;
+}
+@media (hover: hover) {
+  .step:hover { background: rgba(255, 255, 255, 0.09); border-color: rgba(255, 255, 255, 0.28); box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45); }
+  .step:hover .v-card { translate: 0 -10px; }
+}
+.visual {
+  container-type: inline-size;
+  position: relative;
+  aspect-ratio: 358 / 300;
+  border-radius: 5.59% / 6.67%;
   overflow: hidden;
-  background: var(--color-surface);
-  padding: 5px;
-  box-sizing: border-box;
-  rotate: var(--r, -5deg);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.05),
-    0 18px 34px rgba(37, 36, 33, 0.13);
-  transition:
-    rotate 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  background: linear-gradient(180deg, var(--from) 0%, var(--dasar) 100%);
 }
-.srow-art img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 6px;
-  display: block;
+/* Posisi dari Figma: x,y = sudut kiri-atas kartu sebelum diputar, putaran
+   dari sudut itu juga (transform-origin 0 0). Figma memutar berlawanan arah
+   jarum jam, CSS searah — makanya tandanya dibalik. */
+.v-card {
+  position: absolute; left: var(--x); top: var(--y); width: var(--w);
+  transform-origin: 0 0; transform: rotate(calc(-1 * var(--r)));
+  transition: translate 250ms ease;
+}
+.v-card .rcard { box-shadow: 0 14px 28px rgba(0, 0, 0, 0.45); }
+.v-tag {
+  position: absolute; left: var(--x); top: var(--y);
+  display: inline-flex; gap: 1.7cqw; align-items: center;
+  padding: 1.68cqw 3.35cqw; border-radius: 999px;
+  font-size: 3.35cqw; line-height: 4.47cqw; font-weight: 500; color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.14); z-index: 2;
+}
+.v-tag b { color: #fff; font-weight: 600; }
+.v-actions { position: absolute; left: var(--x); top: var(--y); display: flex; gap: 1.7cqw; z-index: 2; }
+.v-actions .v-tag { position: static; color: #fff; font-weight: 600; padding: 1.96cqw 3.63cqw; }
+.v-tag.white { background: #fff; color: var(--ink); border: 0; }
+.step-text { display: flex; flex-direction: column; gap: 6px; }
+.step-no { font-size: 40px; line-height: 40px; color: var(--peach); letter-spacing: -0.04em; }
+.step-text h3 { margin-top: 8px; font-size: 26px; line-height: 30px; font-weight: 600; letter-spacing: -0.02em; }
+.step-text p { font-size: 16px; line-height: 24px; color: rgba(255, 255, 255, 0.65); }
+
+/* ═══════════ S3 · Tema (marquee kartu asli) ═══════════ */
+
+.tema { position: relative; padding: 130px 0 114px; display: flex; flex-direction: column; align-items: center; overflow: clip; }
+.tema .kepala { padding: 0 var(--gutter); }
+.marquee {
+  position: relative; width: 100%;
+  margin-top: 51px;
+  display: flex; flex-direction: column; gap: 28px;
+  --cw: 192px;
+}
+.marquee-glow {
+  position: absolute; left: 50%; top: 50%; width: 1300px; height: 620px; transform: translate(-50%, -50%);
+  border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, var(--glow, transparent), transparent);
+  opacity: var(--glow-op, 0); transition: opacity 400ms;
+}
+.track { position: relative; overflow: visible; }
+.track-left { margin-left: -60px; }
+.track-right { margin-left: -170px; }
+.track-inner {
+  display: flex; gap: 20px; width: max-content;
+  animation: geser var(--dur, 60s) linear infinite;
+}
+.track-right .track-inner { animation-direction: reverse; }
+@keyframes geser { to { transform: translateX(calc(-50% - 10px)); } }
+.marquee:hover .track-inner, .diam .track-inner { animation-play-state: paused; }
+
+.mc { position: relative; width: var(--cw); flex-shrink: 0; transition: transform 250ms cubic-bezier(.2, .8, .2, 1); }
+.mc .rcard { box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5); outline: 2px solid transparent; outline-offset: 2px; transition: outline-color 200ms, box-shadow 200ms; }
+@media (hover: hover) {
+  .mc:not(.is-locked):hover { transform: translateY(-14px) scale(1.1); z-index: 2; }
+  .mc:not(.is-locked):hover .rcard { outline-color: rgba(255, 255, 255, 0.9); box-shadow: 0 28px 56px rgba(0, 0, 0, 0.65); }
+  .mc:not(.is-locked):hover .rcard-cta { opacity: 1; }
+  .mc:not(.is-locked):hover .rcard-pill { opacity: 0; }
+}
+.marquee.locked .mc { opacity: 0.55; }
+
+.fade { position: absolute; top: -20px; bottom: -20px; width: 240px; z-index: 3; pointer-events: none; }
+.fade-l { left: 0; background: linear-gradient(90deg, var(--dasar), rgba(5, 3, 4, 0)); }
+.fade-r { right: 0; background: linear-gradient(270deg, var(--dasar), rgba(5, 3, 4, 0)); }
+
+.lock-panel {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 4;
+  width: min(444px, 100% - 2 * var(--gutter));
+  display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center;
+  padding: 28px 32px; border-radius: 28px;
+  background: rgba(10, 6, 7, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(30px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+.lock-panel[hidden] { display: none; }
+.lock-icon { width: 48px; height: 48px; border-radius: 999px; display: grid; place-items: center; }
+.lock-panel h3 { font-size: 28px; line-height: 32px; font-weight: 600; letter-spacing: -0.02em; }
+.lock-panel p { font-size: 16px; line-height: 24px; color: rgba(255, 255, 255, 0.7); max-width: 380px; }
+.lock-panel small { font-size: 12px; line-height: 16px; font-weight: 500; color: rgba(255, 255, 255, 0.5); }
+.lock-panel small:empty { display: none; }
+
+.tabs {
+  margin-top: 48px;
+  display: flex; gap: 8px; padding: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+.tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 18px; border-radius: 999px;
+  font-size: 15px; line-height: 20px; font-weight: 600; color: rgba(255, 255, 255, 0.75);
+  transition: background-color 150ms, color 150ms;
+}
+.tab:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.tab:active { background: rgba(255, 255, 255, 0.16); }
+.tab.locked { color: rgba(255, 255, 255, 0.5); }
+.tab[aria-selected='true'] { background: #fff; color: var(--ink); }
+
+/* Pemilih tema: pengganti tab di layar sempit */
+.picker {
+  display: none; align-items: center; gap: 8px;
+  margin-top: 28px; padding: 12px 16px 12px 18px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  font-size: 15px; line-height: 20px;
+}
+.picker-k { font-weight: 500; color: rgba(255, 255, 255, 0.55); }
+.picker-v { font-weight: 600; }
+.picker[aria-expanded='true'] svg { transform: rotate(180deg); }
+
+.sheet-scrim { position: fixed; inset: 0; z-index: 60; background: rgba(5, 3, 4, 0.6); }
+.sheet-scrim[hidden] { display: none; }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 61;
+  max-width: 560px; margin: 0 auto;
+  padding: 10px 16px calc(28px + env(safe-area-inset-bottom));
+  border-radius: 28px 28px 0 0;
+  background: #1c1716;
+  border: 1px solid rgba(255, 255, 255, 0.1); border-bottom: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  animation: naik 260ms cubic-bezier(.2, .8, .2, 1);
+}
+.sheet[hidden] { display: none; }
+@keyframes naik { from { transform: translateY(100%); } }
+.sheet-grab { width: 40px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.25); }
+.sheet-head { align-self: stretch; display: flex; justify-content: space-between; align-items: center; padding: 14px 6px 10px; }
+.sheet-head h3 { font-size: 20px; line-height: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.sheet-head small { font-size: 14px; color: rgba(255, 255, 255, 0.5); font-weight: 500; }
+.sheet-list { align-self: stretch; display: flex; flex-direction: column; gap: 4px; }
+.opt {
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
+  padding: 12px 14px; border-radius: 16px;
+}
+.opt:hover { background: rgba(255, 255, 255, 0.06); }
+.opt-dot { width: 12px; height: 12px; border-radius: 999px; background: var(--c); flex-shrink: 0; }
+.opt-txt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.opt-txt b { font-size: 16px; line-height: 22px; font-weight: 600; }
+.opt-txt small { font-size: 13px; line-height: 18px; color: rgba(255, 255, 255, 0.55); }
+.opt.locked .opt-txt, .opt.locked .opt-dot { opacity: 0.5; }
+.opt[aria-checked='true'] { background: #fff; color: var(--ink); }
+.opt[aria-checked='true'] small { color: rgba(10, 6, 7, 0.6); }
+.opt-ic { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* ═══════════ S4 · Kenapa RYLL (bento) ═══════════ */
+
+.bento { width: 100%; max-width: var(--max); display: grid; grid-template-columns: 637fr 635fr; gap: 16px; }
+.bento-col { display: grid; grid-template-rows: 1fr 1fr; gap: 16px; }
+.tile {
+  position: relative; overflow: hidden;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+.tile-text { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 8px; }
+.tile-text h3 { font-size: 34px; line-height: 38px; font-weight: 600; letter-spacing: -0.03em; }
+.tile-text p { font-size: 16px; line-height: 24px; color: rgba(255, 255, 255, 0.6); }
+
+.tile-hp { aspect-ratio: 637 / 600; }
+.tile-hp .tile-text { position: absolute; left: 36px; top: 36px; width: min(420px, 100% - 72px); }
+.hp-stage { container-type: inline-size; position: absolute; inset: 0; }
+.hp-glow {
+  position: absolute; left: 1.57cqw; top: 23.55cqw; width: 97.3cqw; height: 81.6cqw; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(176, 96, 63, 0.45), rgba(176, 96, 63, 0));
+}
+.hp-ring {
+  position: absolute; left: 21.66cqw; top: 29.83cqw; width: 56.51cqw; height: 56.51cqw;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 360'%3E%3Ccircle cx='180' cy='180' r='179' fill='none' stroke='white' stroke-opacity='.22' stroke-width='2' stroke-dasharray='4 8'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.hp {
+  position: absolute; left: 40.5cqw; top: 28.89cqw; width: 26.69cqw; height: 55.26cqw;
+  transform-origin: 0 0; transform: rotate(8deg);
+  border-radius: 5.02cqw; background: #0e0b0a;
+  box-shadow: inset 0 0 0 2px #3a3532, 0 20px 40px rgba(0, 0, 0, 0.55);
+}
+.hp img { position: absolute; left: 0.785cqw; top: 0.47cqw; width: 25.12cqw; height: 54.32cqw; border-radius: 4.24cqw; object-fit: cover; }
+.hp-island { position: absolute; left: 9.42cqw; top: 1.88cqw; width: 7.85cqw; height: 2.35cqw; border-radius: 1.26cqw; background: #000; }
+.pl { position: absolute; left: var(--x); top: var(--y); display: flex; flex-direction: column; align-items: center; gap: 0.94cqw; width: 9.1cqw; }
+.pl i {
+  width: 8.16cqw; height: 8.16cqw; border-radius: 999px; background: var(--c);
+  box-shadow: 0 0 0 4px #120b0a;
+  display: grid; place-items: center;
+  font-style: normal; font-weight: 600; font-size: 3.14cqw; color: var(--ink);
+}
+.pl b {
+  padding: 0.47cqw 1.41cqw; border-radius: 999px; white-space: nowrap;
+  background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 1.88cqw; line-height: 2.5cqw; font-weight: 600;
+}
+.giliran {
+  position: absolute; left: 79.9%; top: 44.3%;
+  padding: 0.94cqw 1.88cqw; border-radius: 999px; background: #fff; color: var(--ink);
+  font-size: 1.88cqw; line-height: 2.5cqw; font-weight: 600; white-space: nowrap;
 }
 
-.steps-cta {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  padding: 40px 28px 24px;
-}
-.steps-cta small {
-  font-size: 13px;
-  line-height: 20px;
-  color: var(--color-muted);
-}
+.tile-gratis .tile-text { position: absolute; left: 32px; top: 32px; width: 280px; }
+.chips { position: absolute; left: 32px; bottom: 32px; display: flex; gap: 8px; z-index: 2; }
+.chip { padding: 6px 12px; border-radius: 999px; font-size: 13px; line-height: 18px; font-weight: 500; color: rgba(255, 255, 255, 0.85); background: rgba(255, 255, 255, 0.1); }
+.deck-stack { position: absolute; left: 54.2%; top: 25px; width: 266px; }
 
-/* tablet: kolom deskripsi turun ke bawah judul, artwork tetap di kanan */
-@media (max-width: 1024px) {
-  .srow {
-    grid-template-columns: clamp(48px, 6vw, 68px) 1fr clamp(88px, 11vw, 116px);
-    grid-template-areas:
-      'num title art'
-      'num desc  art';
-    gap: 0 20px;
-  }
-  .srow-body {
-    padding-top: 14px;
-  }
-  .srow-art {
-    align-self: center;
-  }
+.tile-daftar .tile-text { position: absolute; left: 32px; top: 32px; width: 260px; }
+.form-coret {
+  position: absolute; right: 27px; top: 26px; width: 270px;
+  display: flex; flex-direction: column; gap: 10px; padding: 20px;
+  border-radius: 22px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);
 }
-
-@media (max-width: 640px) {
-  .steps {
-    padding: 0 20px 4px;
-  }
-  .srow {
-    /* artwork dikecilin dulu supaya kolom judul dapat ruang — kalau nggak,
-       "Oper HP-nya." kepecah jadi "Oper HP-" / "nya." di tanda hubungnya */
-    grid-template-columns: 46px 1fr 64px;
-    gap: 0 14px;
-    padding: 22px 0;
-  }
-  .srow::before {
-    inset: 0 -20px;
-  }
-  .srow-title {
-    font-size: clamp(22px, 6.4vw, 30px);
-  }
-  .srow-num {
-    font-size: 22px;
-  }
-  .srow-art {
-    width: 64px;
-  }
-  .srow-body p {
-    font-size: 14px;
-    line-height: 23px;
-  }
-  /* tag bungkus ke baris kedua di layar sempit → middot bakal nyangkut di
-     ujung baris. Buang titiknya, pisahin pakai jarak aja. */
-  .srow-tags {
-    gap: 4px 14px;
-  }
-  .srow-tags i {
-    display: none;
-  }
-  .steps-cta {
-    flex-direction: column;
-    gap: 12px;
-    padding: 28px 20px 20px;
-    text-align: center;
-  }
+.field {
+  padding: 11px 14px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13px; line-height: 18px; color: rgba(255, 255, 255, 0.4);
 }
+.form-coret .btn { padding: 12px 16px; font-size: 14px; line-height: 18px; }
 
-@media (prefers-reduced-motion: reduce) {
-  .srow::before,
-  .srow-num,
-  .srow-art {
-    transition: none;
-  }
-}
-
-/* ═══════════ S6 · FAQ (accordion hairline, pola fourmula) ═══════════
-   Anatomi sama dengan deret S5: baris dipisah hairline penuh, pita abu-abu
-   muda melebar ke tepi halaman saat disorot. Bedanya baris di sini bisa dibuka. */
+/* ═══════════ S5 · FAQ ═══════════ */
 
 .faq {
-  padding: 0 28px 8px;
-  border-top: 1px solid var(--color-hairline);
+  display: flex; gap: 80px;
+  padding: 40px var(--gutter) 150px;
+  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
 }
-.faq-item {
-  position: relative;
-  border-bottom: 1px solid var(--color-hairline);
+.faq-head { width: 420px; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.faq-head .promo { align-self: flex-start; }
+.faq-title { font-size: 56px; line-height: 60px; font-weight: 600; letter-spacing: -0.04em; }
+.faq-title .aksen { font-weight: 500; }
+.accordion { flex: 1; min-width: 0; }
+.qa { border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+.qa:first-child { border-top: 1px solid rgba(255, 255, 255, 0.12); }
+.qa button {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 24px 0; text-align: left;
+  font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.01em;
 }
-.faq-item::before {
-  content: '';
-  position: absolute;
-  inset: 0 -28px;
-  z-index: -1;
-  background: #f4f3ef;
-  opacity: 0;
-  transition: opacity 0.4s ease;
+.qa button i {
+  position: relative; width: 34px; height: 34px; flex-shrink: 0; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1); transition: background-color 150ms;
 }
-.faq-item.open::before {
-  opacity: 1;
+.qa button:hover i { background: rgba(255, 255, 255, 0.18); }
+.qa button i::before, .qa button i::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 12px; height: 1.6px; border-radius: 1px;
+  background: #fff; transform: translate(-50%, -50%);
 }
+.qa button i::after { transform: translate(-50%, -50%) rotate(90deg); transition: transform 200ms; }
+.qa.open button i { background: #fff; }
+.qa.open button i::before, .qa.open button i::after { background: var(--ink); }
+.qa.open button i::after { transform: translate(-50%, -50%) rotate(0deg); }
+.qa-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 250ms ease; }
+.qa-a > p { overflow: hidden; font-size: 17px; line-height: 26px; color: rgba(255, 255, 255, 0.65); }
+.qa.open .qa-a { grid-template-rows: 1fr; }
+.qa.open .qa-a > p { padding-bottom: 24px; margin-top: -12px; }
 
-.faq-q {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  width: 100%;
-  text-align: left;
-  padding: clamp(18px, 1.9vw, 26px) 0;
-  font-size: clamp(19px, 1.9vw, 27px);
-  font-weight: 500;
-  line-height: 1.24;
-  letter-spacing: -0.012em;
-  color: var(--color-ink-secondary);
-  transition: color 0.3s ease;
-}
-.faq-item.open .faq-q {
-  color: var(--color-ink);
-}
+/* ═══════════ S7 · Footer ═══════════ */
 
-/* ikon +: dua garis, yang tegak menyusut jadi − pas kebuka */
-.faq-plus {
-  position: relative;
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+.footer-wrap { padding: 0 24px 24px; }
+.footer {
+  --wm: 150px;
+  position: relative; overflow: hidden;
+  min-height: 560px;
+  padding: 48px;
+  border-radius: 36px;
+  background: #161312;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
-.faq-plus i {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 1.5px;
-  margin-top: -0.75px;
-  border-radius: 1px;
-  background: currentColor;
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.faq-plus i:last-child {
-  transform: rotate(90deg);
-}
-.faq-item.open .faq-plus i:last-child {
-  transform: rotate(90deg) scaleX(0);
-}
-.faq-item.open .faq-plus i:first-child {
-  transform: rotate(180deg);
-}
+.halftone { position: absolute; left: 0; bottom: 0; width: 100%; height: 380px; object-fit: cover; pointer-events: none; }
+.footer-top { position: relative; display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; }
+.logo-xl { --lm: var(--wm); gap: calc(var(--wm) * 0.1); }
+.logo-xl .logo-word { font-size: calc(var(--wm) * 0.684); letter-spacing: -0.003em; }
+.footer-right { display: flex; flex-direction: column; align-items: flex-end; gap: 20px; padding-top: 8px; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+.footer-links a { font-size: 15px; line-height: 20px; font-weight: 500; color: rgba(255, 255, 255, 0.75); }
+.footer-links a:hover { color: #fff; }
+.footer .btn { padding: 14.4px 25.6px; font-size: 16px; line-height: 20px; }
+.legal { position: relative; margin-top: 52px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.legal small { font-size: 14px; line-height: 20px; color: rgba(255, 255, 255, 0.55); }
+.domain { font-size: 56px; line-height: 60px; font-weight: 600; letter-spacing: -0.03em; }
 
-/* buka-tutup pakai grid 0fr→1fr: tinggi konten nggak perlu diukur di JS
-   dan transisinya tetap halus berapa pun panjang jawabannya */
-.faq-a {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.faq-item.open .faq-a {
-  grid-template-rows: 1fr;
-}
-.faq-a > p {
-  overflow: hidden;
-  margin: 0;
-  max-width: 62ch;
-  font-size: 15px;
-  line-height: 26px;
-  color: var(--color-ink-secondary);
-  /* padding ikut kekunci di dalam area yang di-clip, jadi pas ketutup
-     nggak ada sisa ruang yang keliatan */
-  padding-bottom: 0;
-  transition: padding-bottom 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.faq-item.open .faq-a > p {
-  padding-bottom: clamp(18px, 1.9vw, 26px);
-}
+/* ═══════════ Kurangi gerak ═══════════ */
 
-@media (hover: hover) {
-  .faq-q:hover {
-    color: var(--color-ink);
-  }
-}
-
-@media (max-width: 640px) {
-  .faq {
-    padding: 0 20px 4px;
-  }
-  .faq-item::before {
-    inset: 0 -20px;
-  }
-  .faq-q {
-    gap: 16px;
-    font-size: 17px;
-  }
-  .faq-a > p {
-    font-size: 14px;
-    line-height: 23px;
-  }
-}
-
+.diam .player, .diam .track-inner { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
-  .faq-a,
-  .faq-a > p,
-  .faq-plus i,
-  .faq-item::before {
-    transition: none;
-  }
+  html { scroll-behavior: auto; }
+  .player, .track-inner { animation-play-state: paused; }
 }
 
-/* ═══════════ S7 · Footer (container rounded gelap + dot halftone) ═══════════
-   Satu-satunya blok gelap di halaman — echo punggung kartu. Menggantikan CTA
-   penutup DAN footer sekaligus, seperti fourmula. */
+/* ═══════════ Tablet 768 (640–1023) ═══════════ */
 
-.foot {
-  padding: 12px;
-}
-.foot-box {
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-  border-radius: 28px;
-  background: var(--color-surface-dark);
-  color: var(--color-inverse);
-  padding: clamp(28px, 3.4vw, 52px);
-  /* ruang buat pita dot di dasar — baris legal nggak boleh nabrak dotnya */
-  padding-bottom: clamp(150px, 18vw, 240px);
-}
-/* konten di atas lapisan dot */
-.foot-top,
-.foot-legal {
-  position: relative;
-  z-index: 1;
-}
+@media (max-width: 1023px) {
+  .nav { padding: 16px var(--gutter) 0; }
+  .nav-pill { top: 16px; }
+  .menu { top: 72px; }
 
-.foot-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 32px;
-}
-.foot-brand {
-  display: flex;
-  align-items: center;
-  gap: clamp(10px, 1.1vw, 18px);
-}
-/* tile ikut skala wordmark (±tinggi huruf kapital, 0.7 × font-size) — kalau
-   dipatok px tetap, dia ketinggalan kecil begitu wordmark-nya membesar */
-.foot-brand .logomark {
-  --lm: clamp(40px, 7vw, 105px);
-  /* line-height 0.9 bikin pusat optis huruf naik ±5.5% dari pusat line box,
-     jadi tile-nya diangkat segitu biar sejajar mata, bukan sejajar kotak */
-  margin-bottom: clamp(3px, 0.55vw, 8px);
-}
-.foot-word {
-  font-size: clamp(56px, 10vw, 150px);
-  font-weight: 600;
-  line-height: 0.9;
-  letter-spacing: -0.035em;
-}
+  .hero { padding-top: 150px; --hk: 0.8; }
+  .hero-title { font-size: 64px; line-height: 70px; }
+  .hero-sub { font-size: 18px; line-height: 27px; }
+  .hero-actions .btn { padding: 14px 20px; font-size: 16px; line-height: 20px; }
+  .hero-center { gap: 20px; }
+  .hero-cards { margin-top: 64px; height: calc(300px * var(--hk)); }
+  .hero-glow-center { width: 880px; height: 560px; }
+  .player-sinta, .motion-toggle, .scroll-hint { display: none; }
+  .player-nadia { left: 60px; top: auto; bottom: calc(300px * var(--hk) - 4px); }
+  .player-habibi { left: auto; right: 70px; top: auto; bottom: calc(300px * var(--hk) + 2px); }
 
-.foot-side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 20px;
-}
-/* pill CTA versi inverse dari .btn-primary */
-.btn-inverse {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: var(--radius-md);
-  padding: 12px 20px;
-  text-decoration: none;
-  transition: transform 0.15s ease;
-}
-.btn-inverse:hover {
-  transform: translateY(-1px);
-}
-.foot-links {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-}
-.foot-links a {
-  font-size: 13px;
-  line-height: 20px;
-  color: rgba(255, 255, 255, 0.55);
-  text-decoration: none;
-  transition: color 0.25s ease;
-}
-.foot-links a:hover {
-  color: var(--color-inverse);
+  .section { padding: 80px var(--gutter); gap: 40px; }
+  .section-tight { padding-top: 40px; }
+  .judul { font-size: 52px; line-height: 56px; }
+  .judul > span { display: block; }
+  .kepala-sub { font-size: 18px; }
+
+  .steps { grid-template-columns: 1fr; gap: 16px; }
+  .step { flex-direction: row; align-items: center; gap: 28px; padding: 20px; }
+  .step .visual { width: 320px; flex-shrink: 0; }
+
+  .tema { padding: 80px 0; }
+  .tabs { display: none; }
+  .picker { display: inline-flex; }
+  .marquee { margin-top: 32px; gap: 16px; --cw: 173px; }
+  .track-left { margin-left: -60px; }
+  .track-right { margin-left: -150px; }
+  .fade { width: 120px; }
+
+  .bento { grid-template-columns: 1fr; gap: 12px; }
+  .bento-col { grid-template-rows: none; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tile-hp { aspect-ratio: auto; height: 600px; }
+  .tile-hp .tile-text { left: 40px; top: 40px; width: calc(100% - 80px); }
+  .tile-hp .tile-text h3 { font-size: 30px; line-height: 34px; }
+  .hp-stage { left: 50%; right: auto; top: auto; bottom: 0; width: 605px; height: 570px; transform: translateX(-50%); }
+  .tile-gratis, .tile-daftar { display: flex; flex-direction: column; gap: 16px; padding: 28px; min-height: 396px; }
+  .tile-gratis .tile-text, .tile-daftar .tile-text { position: static; width: auto; }
+  .tile-gratis .tile-text h3, .tile-daftar .tile-text h3 { font-size: 30px; line-height: 34px; }
+  .chips { position: static; flex-wrap: wrap; }
+  .deck-stack { position: relative; left: auto; top: auto; width: 218px; align-self: center; margin: 12px 0 -60px; }
+  .form-coret { position: static; width: 100%; margin-top: 4px; }
+
+  .faq { flex-direction: column; gap: 28px; padding: 40px var(--gutter) 80px; }
+  .faq-head { width: auto; }
+  .faq-title { font-size: 48px; line-height: 52px; }
+  .qa button { font-size: 20px; line-height: 28px; }
+  .qa-a > p { font-size: 16px; line-height: 24px; }
+
+  .footer-wrap { padding: 0 12px 12px; }
+  .footer { --wm: 90px; padding: 32px 24px; min-height: 0; padding-bottom: 300px; }
+  .footer-top { flex-direction: column; gap: 28px; }
+  .footer-right { align-items: flex-start; padding-top: 0; }
+  .legal { flex-direction: column-reverse; align-items: flex-start; margin-top: 32px; gap: 6px; }
+  .domain { font-size: 48px; line-height: 52px; }
+  .halftone { height: 300px; object-position: 66% 50%; }
 }
 
-.foot-legal {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 24px;
-  margin-top: clamp(48px, 7vw, 96px);
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
-}
-/* domain sengaja dibesarin: satu-satunya jejak yang kebawa dari screenshot
-   yang dilempar ke grup (spec §1.6) — harus kebaca sekali lirik */
-.foot-domain {
-  font-size: clamp(22px, 2.6vw, 38px);
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  color: var(--color-inverse);
-}
+/* ═══════════ Mobile 375 (< 640) ═══════════ */
 
-/* -- dot halftone -- */
-.foot-dots,
-.foot-ghost {
-  position: absolute;
-  z-index: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1.4px, transparent 1.5px);
-  background-size: 13px 13px;
-  pointer-events: none;
-}
-.foot-dots {
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: clamp(130px, 17vw, 230px);
-  -webkit-mask-image: linear-gradient(to top, #000 18%, transparent 94%);
-  mask-image: linear-gradient(to top, #000 18%, transparent 94%);
-}
-/* dot yang sama tapi lebih terang, di-mask pakai ghost → siluetnya muncul
-   dari dalam ladang dot, bukan ditempel sebagai gambar terpisah */
-.foot-ghost {
-  right: clamp(20px, 4vw, 72px);
-  bottom: clamp(-8px, 0.5vw, 8px);
-  width: clamp(130px, 20vw, 260px);
-  aspect-ratio: 1;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.55) 1.7px, transparent 1.8px);
-  -webkit-mask: url('/art/logo-ghost.svg') no-repeat center / contain;
-  mask: url('/art/logo-ghost.svg') no-repeat center / contain;
-}
+@media (max-width: 639px) {
+  .nav { padding: 16px var(--gutter) 0; }
+  .nav-pill { left: auto; right: var(--gutter); transform: none; }
+  .nav-right { display: none; }
+  .menu { left: auto; right: var(--gutter); transform: none; width: min(340px, 100vw - 2 * var(--gutter)); top: 72px; }
+  .menu-masuk { display: flex; }
 
-@media (max-width: 760px) {
-  .foot {
-    padding: 8px;
-  }
-  .foot-box {
-    padding: 24px;
-    padding-bottom: clamp(140px, 34vw, 190px);
-    border-radius: 24px;
-  }
-  .foot-top {
-    flex-direction: column;
-    gap: 28px;
-  }
-  /* di mobile link + CTA pindah rata kiri, sejajar wordmark */
-  .foot-side {
-    align-items: flex-start;
-    width: 100%;
-  }
-  .foot-links {
-    flex-direction: row;
-    align-items: center;
-    gap: 18px;
-  }
-  .foot-legal {
-    margin-top: 40px;
-  }
-  .foot-ghost {
-    right: 8px;
-    width: clamp(120px, 34vw, 170px);
-  }
-}
+  .hero { padding-top: 124px; --hk: 0.55; }
+  .hero-title { font-size: 38px; line-height: 42px; }
+  .hero-sub { font-size: 16px; line-height: 24px; }
+  .hero-actions { gap: 8px; }
+  .hero-actions .btn { padding: 14px 20px; font-size: 15px; line-height: 20px; }
+  .hero-cards { margin-top: 56px; height: calc(305px * var(--hk)); }
+  .hero-glow-center { width: 550px; height: 350px; top: 150px; }
+  .hero-glow-corner { width: 500px; height: 380px; }
+  .player-nadia { left: 24px; bottom: calc(305px * var(--hk) - 4px); }
+  .player-habibi { right: 28px; bottom: calc(305px * var(--hk) + 2px); }
 
-@media (prefers-reduced-motion: reduce) {
-  .btn-inverse,
-  .foot-links a {
-    transition: none;
-  }
-}
+  .section { padding: 80px var(--gutter); gap: 36px; }
+  .section-tight { padding-top: 40px; }
+  .judul { font-size: 36px; line-height: 40px; }
+  .kepala-sub { font-size: 16px; line-height: 24px; }
 
-/* reveal on-scroll generik */
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition:
-    opacity 0.7s ease,
-    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.reveal.shown {
-  opacity: 1;
-  transform: none;
-}
+  .step { flex-direction: column; align-items: stretch; gap: 18px; padding: 16px 16px 24px; }
+  .step .visual { width: 100%; }
 
-/* ═══════════ Responsive ═══════════ */
+  .tema { padding: 80px 0; }
+  .marquee { gap: 12px; --cw: 144px; }
+  .track-left { margin-left: -50px; }
+  .track-right { margin-left: -120px; }
+  .track-inner { gap: 15px; }
+  .fade { width: 48px; }
 
-/* Nggak ada lagi override --center-scale per breakpoint (dulu ada 4: layar
-   pendek, ≥1600, ≥2200, ≤900). Semuanya nempel ke --ring-r lewat
-   --center-ratio, jadi proporsi ring↔kartu pusat konstan di semua ukuran. */
+  .bento-col { grid-template-columns: 1fr; }
+  .tile-hp { height: 470px; }
+  .tile-hp .tile-text { left: 20px; top: 20px; width: calc(100% - 40px); }
+  .tile-text h3, .tile-hp .tile-text h3, .tile-gratis .tile-text h3, .tile-daftar .tile-text h3 { font-size: 26px; line-height: 30px; }
+  .hp-stage { width: 459px; height: 432px; top: 34px; bottom: auto; }
+  .giliran { left: 54%; top: 37%; }
+  .tile-gratis, .tile-daftar { padding: 20px; min-height: 0; }
+  .deck-stack { width: 192px; margin-bottom: -50px; }
 
-@media (max-width: 900px) {
-  :root {
-    --ring-r: clamp(140px, min(27vw, 25vh), 240px);
-  }
-  /* ring duduk di tengah ruang antara navbar dan headline */
-  .ring-scroll {
-    top: 45%;
-  }
-  .tema-card {
-    flex-basis: 176px;
-  }
-}
+  .faq-title { font-size: 40px; line-height: 44px; }
+  .qa button { padding: 18px 0; font-size: 17px; line-height: 24px; }
+  .qa-a > p { font-size: 15px; line-height: 22px; }
+  .qa.open .qa-a > p { padding-bottom: 18px; margin-top: -6px; }
 
-@media (max-width: 640px) {
-  :root {
-    --ring-r: clamp(118px, min(36vw, 24vh), 170px);
-    /* di layar sempit kartu pusat sengaja lebih dominan (plan: mobile 375) */
-    --center-ratio: 0.78;
-  }
-  .nav {
-    padding: 14px 16px;
-  }
-  .nav-menu-label {
-    display: none;
-  }
-  /* panel hampir selebar layar — logo & CTA minggir dulu selama menu buka */
-  .nav-logo,
-  .nav-cta {
-    transition: opacity 0.25s ease;
-  }
-  html.menu-open .nav-logo,
-  html.menu-open .nav-cta {
-    opacity: 0;
-    pointer-events: none;
-  }
-  .nav-pill {
-    padding: 8px 8px 8px 14px;
-  }
-  .hero {
-    min-height: 560px;
-  }
-  .ring-scroll {
-    top: 46%;
-  }
-  .hero-headline {
-    left: 16px;
-    right: 16px;
-    bottom: 44px;
-    font-size: clamp(34px, 10.5vw, 44px);
-  }
-  .hero-copyright {
-    left: 16px;
-    transform: none;
-    bottom: 16px;
-  }
-  .hero-scroll-hint {
-    right: 16px;
-    bottom: 16px;
-  }
-  .split-intro {
-    display: block;
-  }
-  .sec-title {
-    font-size: 22px;
-  }
-  .tema-card {
-    flex-basis: 160px;
-  }
-  .flip-mini {
-    --center-scale: 0.3;
-  }
-  .teaser-row {
-    gap: 10px;
-    justify-content: center;
-  }
-  .phone {
-    width: 260px;
-    margin-bottom: -30px;
-  }
-  .rail {
-    border-right: 0;
-    border-bottom: 1px solid var(--color-hairline);
-    padding: 20px 16px;
-  }
-  .split-main {
-    padding: 48px 16px;
-  }
-  .split-side {
-    position: static;
-    text-align: left;
-    margin-top: 32px;
-  }
-}
-
-/* ═══════════ Reduced motion ═══════════ */
-
-@media (prefers-reduced-motion: reduce) {
-  .ring-spin {
-    animation: none;
-  }
-  .mini-card,
-  .center-card,
-  .hl-line,
-  .reveal,
-  .menu-panel,
-  .menu-label,
-  .menu-link,
-  .menu-rule,
-  .nav-burger i,
-  .lm,
-  .roll-line,
-  #preloader {
-    transition: none;
-  }
-  html {
-    scroll-behavior: auto;
-  }
+  .footer { --wm: 63px; padding-bottom: 240px; }
+  .domain { font-size: 40px; line-height: 44px; }
+  .halftone { height: 240px; }
 }
