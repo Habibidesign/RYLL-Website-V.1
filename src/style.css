@@ -120,6 +120,21 @@ ol, ul { list-style: none; }
   color: rgba(255, 255, 255, 0.85);
 }
 
+/* ── Logo RYLL (mata alis naik + "ryll"). Satu SVG dipakai sebagai mask,
+      jadi warnanya ikut `color` dan tingginya diatur lewat --logo-h. Rasio
+      dari Figma: 273.4 × 119.8, baseline di 98/119.8 tinggi. ── */
+.ryll-logo {
+  display: inline-block; flex-shrink: 0;
+  height: var(--logo-h, 34px); aspect-ratio: 273.37 / 119.84;
+  background: currentColor;
+  -webkit-mask: url('/art/ryll-logo.svg') center / contain no-repeat;
+  mask: url('/art/ryll-logo.svg') center / contain no-repeat;
+}
+.nav .ryll-logo { --logo-h: 34px; }
+.lockup .ryll-logo { --logo-h: 19px; color: #fff; }
+.rcard-logo .ryll-logo { --logo-h: 9.5cqw; color: #fff; }
+.logo-xl .ryll-logo { --logo-h: calc(var(--wm) * 1.05); }
+
 /* ── Logo: tile kaca + ghost, rasio dari --lm (replika komponen Logo PWA) ── */
 .logo { display: inline-flex; align-items: center; gap: calc(var(--lm, 36px) * 0.1); }
 .logo-word { font-weight: 600; font-size: 24.6px; line-height: 1; letter-spacing: -0.001em; }

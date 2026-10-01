@@ -66,8 +66,7 @@ const TANYA = {
 const app = (path = '/') => APP_URL + path
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 
-const LOGO = (lm) =>
-  `<span class="logomark" style="--lm:${lm}"><span class="logomark-tile"></span><img src="/art/logo-ghost.svg" alt="" /></span>`
+const LOGO = '<span class="ryll-logo" role="img" aria-label="RYLL"></span>'
 
 /** Kartu depan RYLL. `kunci` = abu-abu + pertanyaan buram. */
 function kartu(deck, q, { kunci = false, tagKunci = false, cta = false } = {}) {
@@ -75,7 +74,7 @@ function kartu(deck, q, { kunci = false, tagKunci = false, cta = false } = {}) {
   return `<div class="rcard${kunci ? ' is-locked' : ''}"><div class="rcard-in">
     <div class="rcard-art">
       <img class="bg" src="/art/${deck}-front-thumb.webp" alt="" loading="lazy" decoding="async" />
-      <span class="rcard-logo">${LOGO('9cqw')}RYLL</span>
+      <span class="rcard-logo">${LOGO}</span>
       <p class="rcard-q">${esc(q)}</p>
       <span class="rcard-pill">${d.nama}</span>
       ${cta ? `<span class="rcard-cta">Main ${d.nama} →</span>` : ''}
@@ -89,7 +88,7 @@ function punggung(deck, nama) {
   return `<div class="rcard"><div class="rcard-in">
     <div class="rcard-art">
       <img class="bg" src="/art/${deck}-back-thumb.webp" alt="" loading="lazy" decoding="async" />
-      <span class="rcard-logo">${LOGO('9cqw')}RYLL</span>
+      <span class="rcard-logo">${LOGO}</span>
       <span class="rcard-mid"><span class="rcard-label">Giliran</span><span class="rcard-name">${esc(nama)}</span></span>
       <span class="rcard-tap">Tap buat buka</span>
     </div>
