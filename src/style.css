@@ -331,6 +331,15 @@ ol, ul { list-style: none; }
   .hc:hover .hc-cta { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
 }
 
+/* Fade di tepi bawah hero: kartu memudar ke latar, jadi section berikutnya
+   tidak terasa terpotong (Figma: "Fade kanan" 240px di hero 206:35671). */
+.hero-fade {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  height: calc(240px * var(--hk));
+  background: linear-gradient(180deg, rgba(5, 3, 4, 0) 0%, var(--dasar) 100%);
+  pointer-events: none;
+}
+
 /* Tag pemain dengan kursor, ala multiplayer */
 .players { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .player {
